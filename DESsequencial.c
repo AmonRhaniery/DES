@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include <stdbool.h>
 
 int IP[] = 
 {
@@ -532,6 +533,7 @@ void keyTo64Bits(){
 	unsigned int chAux[56];
 	int i=0;
 	int j=0;
+	char ch;
 	//encontrar quantos bits estão no arquivo para colocá-los no final
 	long int size;
 	if (fseek(inp, 0L, SEEK_END))
@@ -566,15 +568,15 @@ void keyTo64Bits(){
 	//escrever a chave 64bits no arquivo
 	out = fopen("key.txt", "wb+");
 	for(int k=0;k<64;k++){
-		fprint(out, &CHAVE[k]);
+		fprintf(out, "%d", CHAVE[k]);
 	}
 	fclose(out);
 }
 
 int main()
 {	
-	boolean correto=false;
-	char MSG[]={"A","T","O","M","I","C","O","S"};
+	bool correto=false;
+	char MSG[]={'A','T','O','M','I','C','O','S'};
 	// destroy contents of these files (from previous runs, if any)
 	out = fopen("result.txt", "wb+");
 	fclose(out);
@@ -585,6 +587,7 @@ int main()
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
+
 
 	// TESTAR TODAS AS CHAVES DE 16 BITS
 	long int N = pow (2,16);
@@ -609,9 +612,10 @@ int main()
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
 		out=fopen("result.txt", "rb");
 		int j=0;
+		char ch;
 		while (!feof(out)) {
 			ch = getc(out);
-			if (ch==&MSG[j]){
+			if (ch==MSG[j]){
 				j++;
 				if(j==8){
 					correto=true;
@@ -627,12 +631,13 @@ int main()
 	}
 
 	gettimeofday(&end, NULL) // End timer
-	
+
 	double time_taken;
 	time_taken = (end.tv_sec - start.tv_sec) * 1e6;
-  
+
     cout << "Tempo que o programa levou foi de: " << time_taken << setprecision(6); 
     cout << " segundos" << endl; 
+
 
 	return 0;
 }
