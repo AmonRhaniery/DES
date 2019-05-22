@@ -605,18 +605,21 @@ int main()
 		encrypt(n);
 		decrypt(n);
 
-		//verificar se chave está correta
+		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
 		out=fopen("result.txt", "rb");
 		int j=0;
 		while (!feof(out)) {
 			ch = getc(out);
-			if (out==&MSG[j]){
+			if (ch==&MSG[j]){
 				j++;
+				if(j==8){
+					correto=true;
+				}
 			} else {
 				break;
 			}
-			correto=true;
 		}
+		fclose(out);
 		if (correto){
 			break;
 		}
