@@ -582,12 +582,9 @@ int main()
 	out = fopen("cipher.txt", "wb+");
 	fclose(out);
 
-	// testar chave 16bits
+	// TESTAR TODAS AS CHAVES DE 16 BITS
 	long int N = pow (2,16);
 	for(long int k = 0; k<N;k++){
-		//excluir a chave anterior
-		out = fopen("key.txt", "wb+");
-		fclose(out);
 		//criar nova chave de acordo com k
 		out = fopen("key.txt", "wb+");
 		convertToBinary(k);
@@ -602,7 +599,7 @@ int main()
 
 		convertCharToBit(n);
 
-		encrypt(n);
+		//encrypt(n);
 		decrypt(n);
 
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
