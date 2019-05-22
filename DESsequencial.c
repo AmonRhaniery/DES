@@ -261,7 +261,7 @@ void cipher(int Round, int mode)
 	for(int k=0;k<=17;k++){
 		fprintf(registro,"%d=> ",k);
 		for(int j=0;j<48;j++){
-			fprintf(registro,"%d ");
+			fprintf(registro,"%d ",key48bit[k][j]);
 		}
 		fprintf(registro,"\n");
 	} */
@@ -461,6 +461,7 @@ void key64to48(unsigned int key[])
 	for (int i = 0; i < 64; i++)
 		key64to56(i, key[i]);
 	fclose(registro);
+
 	for (int i = 0; i < 56; i++)
 		if (i < 28)
 			C[0][i] = key56bit[i];
@@ -559,15 +560,16 @@ void create16Keys()
 	int i = 0, ch;
 	
 	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Criando as 16 chaves.\n");
-	fclose(registro);
+	fprintf(registro,"Criando as 16 chaves a partir de: \n");
+	//fclose(registro);
 	while (!feof(pt) && i<64) 
 	{
 		ch = getc(pt);
 		key[i++] = ch - 48;
+		fprintf(registro,"%d",ch-48);
 	}
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Convertendo de 64 para 48bits...\n");
+	//registro=fopen("registro.txt","a+");
+	fprintf(registro,"\nConvertendo de 64 para 48bits...\n");
 	fclose(registro);
 	key64to48(key);
 
@@ -577,7 +579,7 @@ void create16Keys()
 	for(int k=0;k<=17;k++){
 		fprintf(registro,"%d=> ",k);
 		for(int j=0;j<48;j++){
-			fprintf(registro,"%d ");
+			fprintf(registro,"%d ",key48bit[k][j]);
 		}
 		fprintf(registro,"\n");
 	}
