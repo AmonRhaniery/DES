@@ -592,7 +592,7 @@ int main()
 
 	// TESTAR TODAS AS CHAVES DE 16 BITS
 	long long int N = pow (2,16);
-	for(long int k = 0; k<N;k++){
+	for(long long int k = 0; k<N;k++){
 		//criar nova chave de acordo com k
 		out = fopen("key.txt", "wb+");
 		convertToBinary(k);
