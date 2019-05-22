@@ -255,6 +255,17 @@ void cipher(int Round, int mode)
 	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
 	registro=fopen("registro.txt","a+");
+
+	//testar chave de 48bit
+	/* fprintf(registro,"Verificar chave de 48bits: \n");
+	for(int k=0;k<=17;k++){
+		fprintf(registro,"%d=> ",k);
+		for(int j=0;j<48;j++){
+			fprintf(registro,"%d ");
+		}
+		fprintf(registro,"\n");
+	} */
+
 	fprintf(registro,"XOR.. \n");
 	fclose(registro);
 	for (int i = 0; i < 48; i++) 
@@ -266,6 +277,10 @@ void cipher(int Round, int mode)
 	}
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"S BOX com XORtext: \n");
+	for(int k=0;k<48;k++){
+		fprintf(registro,"%d ",XORtext[k]);
+	}
+	fprintf(registro,"\n");
 	fclose(registro);
 	SBox(XORtext);
 	registro=fopen("registro.txt","a+");
@@ -424,6 +439,7 @@ void key56to48(int round, int pos, int text)
 		if (PC2[i] == pos + 1)
 			break;
 	key48bit[round][i] = text;
+	
 }
 
 int key64to56(int pos, int text)
@@ -554,6 +570,19 @@ void create16Keys()
 	fprintf(registro,"Convertendo de 64 para 48bits...\n");
 	fclose(registro);
 	key64to48(key);
+
+	registro=fopen("registro.txt","a+");
+	//testar chave de 48bit
+	fprintf(registro,"Verificar chave de 48bits: \n");
+	for(int k=0;k<=17;k++){
+		fprintf(registro,"%d=> ",k);
+		for(int j=0;j<48;j++){
+			fprintf(registro,"%d ");
+		}
+		fprintf(registro,"\n");
+	}
+	fclose(registro);
+
 	fclose(pt);
 }
 
