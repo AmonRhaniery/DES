@@ -249,9 +249,14 @@ int PBox(int pos, int text)
 
 void cipher(int Round, int mode)
 {
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Função de expansão.. \n");
+	fclose(registro);
 	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"XOR.. \n");
+	fclose(registro);
 	for (int i = 0; i < 48; i++) 
 	{
 		if (mode == 0)
@@ -259,9 +264,13 @@ void cipher(int Round, int mode)
 		else
 			XORtext[i] = XOR(EXPtext[i], key48bit[17 - Round][i]);
 	}
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"S BOX com XORtext: \n");
+	fclose(registro);
 	SBox(XORtext);
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"P Box.. \n");
+	fclose(registro);
 	for (int i = 0; i < 32; i++)
 		PBox(i, X2[i]);
 	for (int i = 0; i < 32; i++)
@@ -345,21 +354,33 @@ void Encryption(long int plain[])
 void Decryption(long int plain[])
 {
 	out = fopen("decrypted.txt", "ab+");
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Permutação inicial.. \n");
+	fclose(registro);
 	for (int i = 0; i < 64; i++)
 		initialPermutation(i, plain[i]);
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Mudança de L.. \n");
+	fclose(registro);
 	for (int i = 0; i < 32; i++)
 		LEFT[0][i] = IPtext[i];
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Mudança de R.. \n");
+	fclose(registro);
 	for (int i = 32; i < 64; i++)
 		RIGHT[0][i - 32] = IPtext[i];
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Expansão e S BOX.. \n");
+	fclose(registro);
 	for (int k = 1; k < 17; k++) {
 		cipher(k, 1);
 
 		for (int i = 0; i < 32; i++)
 			LEFT[k][i] = RIGHT[k - 1][i];
 	}
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Juntando cifras direita e esquerda e fazendo permutação final.. \n");
+	fclose(registro);
 	for (int i = 0; i < 64; i++) 
 	{
 		if (i < 32)
@@ -369,7 +390,7 @@ void Decryption(long int plain[])
 		finalPermutation(i, CIPHER[i]);
 	}
 	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Mensagem decriptada em bits... \n");	
+	fprintf(registro,"Mensagem decriptada em bits: \n");	
 
 	for (int i = 0; i < 64; i++){
 		fprintf(out, "%d", ENCRYPTED[i]);
@@ -475,7 +496,7 @@ void decrypt(long int n)
 	char ch;
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Recebendo cifra... \n");	
-	while (!feof(in) && i<64) 
+	while (!feof(in) && i<61) 
 	{
 		ch = getc(in);
 		plain[++i] = ch - 48;
