@@ -630,14 +630,11 @@ int main()
 		}
 	}
 
-	gettimeofday(&end, NULL) // End timer
+	gettimeofday(&end, NULL); // End timer
 
-	double time_taken;
-	time_taken = (end.tv_sec - start.tv_sec) * 1e6;
+	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
 
-    cout << "Tempo que o programa levou foi de: " << time_taken << setprecision(6); 
-    cout << " segundos" << endl; 
-
+    printf("Tempo que o programa levou foi de: %.6lf segundos", time_taken);
 
 	return 0;
 }
