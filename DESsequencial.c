@@ -534,6 +534,7 @@ void keyTo64Bits(){
 	int i=0;
 	int j=0;
 	char ch;
+	int tamanhoEmBits=0;
 	//encontrar quantos bits estão no arquivo para colocá-los no final
 	long int size;
 	if (fseek(inp, 0L, SEEK_END))
@@ -541,7 +542,8 @@ void keyTo64Bits(){
 	else // size will contain no. of chars in input file.
 		size = ftell(inp);
 	fclose(inp);
-	printf("Arquivo tem tamanho %ld", size);
+	tamanhoEmBits=size/8;
+	printf("Arquivo tem tamanho %ld \n", tamanhoEmBits);
 
 	//colocar os bits no fim do vetor chave
 	i=56-size;
@@ -577,6 +579,7 @@ void keyTo64Bits(){
 int main()
 {	
 	bool correto=false;
+	FILE* debug;
 	char MSG[]={'A','T','O','M','I','C','O','S'};
 	// destroy contents of these files (from previous runs, if any)
 	out = fopen("result.txt", "wb+");
@@ -601,7 +604,15 @@ int main()
 		printf("Testando chave %lld !\n",k);
 		keyTo64Bits();
 
-		printf("Executando descriptografia com DES... \n");
+		printf("Executando descriptografia com DES com a chave: \n");
+
+		//verificar a chave escrita no arquivo
+		debug = fopen ("key.txt","rb");
+		while (!feof(debug)) {
+			char ch = getc(debug);
+			printf("%c",ch);
+		}
+		printf("/n");
 
 		//TESTAR DES
 		create16Keys();
