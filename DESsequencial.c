@@ -541,6 +541,7 @@ void keyTo64Bits(){
 	else // size will contain no. of chars in input file.
 		size = ftell(inp);
 	fclose(inp);
+	printf("Arquivo tem tamanho %ld", size);
 
 	//colocar os bits no fim do vetor chave
 	i=56-size;
@@ -590,14 +591,17 @@ int main()
 
 
 	// TESTAR TODAS AS CHAVES DE 16 BITS
-	long int N = pow (2,16);
+	long long int N = pow (2,16);
 	for(long int k = 0; k<N;k++){
 		//criar nova chave de acordo com k
 		out = fopen("key.txt", "wb+");
 		convertToBinary(k);
 		fclose(out);
 		//colocar chave no formato 64bits
+		printf("Testando chave %lld !\n",k);
 		keyTo64Bits();
+
+		printf("Executando descriptografia com DES... \n");
 
 		//TESTAR DES
 		create16Keys();
@@ -610,14 +614,17 @@ int main()
 		decrypt(n);
 
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
+
+		printf("Verificando mensagem em claro gerada... \n");
 		out=fopen("result.txt", "rb");
 		int j=0;
 		char ch;
-		while (!feof(out)) {
+		while (!feof(out) && j<8) {
 			ch = getc(out);
 			if (ch==MSG[j]){
 				j++;
 				if(j==8){
+					printf("Correto para chave %lld ! \n", k);
 					correto=true;
 				}
 			} else {
@@ -634,7 +641,7 @@ int main()
 
 	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
 
-    printf("Tempo que o programa levou foi de: %.6lf segundos", time_taken);
+    printf("Tempo que o programa levou foi de: %.6lf segundos.", time_taken);
 
 	return 0;
 }
