@@ -413,10 +413,11 @@ void key64to48(unsigned int key[])
 	int k, backup[17][2];
 	int CD[17][56];
 	int C[17][28], D[17][28];
-
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Conversão de 64 para 56bits... \n");
 	for (int i = 0; i < 64; i++)
 		key64to56(i, key[i]);
-
+	fclose(registro);
 	for (int i = 0; i < 56; i++)
 		if (i < 28)
 			C[0][i] = key56bit[i];
@@ -455,6 +456,9 @@ void key64to48(unsigned int key[])
 	for (int j = 1; j < 17; j++)
 		for (int i = 0; i < 56; i++)
 			key56to48(j, i, CD[j][i]);
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Chave de 48bits gerada! \n");
+	fclose(registro);
 }
 
 void decrypt(long int n)
@@ -503,13 +507,17 @@ void create16Keys()
 	FILE* pt = fopen("key.txt", "rb");
 	unsigned int key[64];
 	int i = 0, ch;
-
+	
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Criando as 16 chaves.\n");
 	while (!feof(pt)) 
 	{
 		ch = getc(pt);
 		key[i++] = ch - 48;
 	}
-
+	
+	fprintf(registro,"Convertendo de 64 para 48bits...\n");
+	fclose(registro);
 	key64to48(key);
 	fclose(pt);
 }
@@ -653,10 +661,15 @@ int main()
 		create16Keys();
 
 		long int n = findFileSize() / 8;
-
+		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Convertendo mensagem original para bits...\n");
+		fclose(registro);
 		convertCharToBit(n);
 
 		//encrypt(n);
+		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Decriptando cifra...\n");
+		fclose(registro);
 		decrypt(n);
 
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
