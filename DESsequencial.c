@@ -252,19 +252,37 @@ void cipher(int Round, int mode)
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Função de expansão.. \n");
 	fclose(registro);
+	//testar RIGHT
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Verificar RIGHT: \n");
+	for(int k=0;k<=17;k++){
+		fprintf(registro,"%d=> ",k);
+		for(int j=0;j<32;j++){
+			fprintf(registro,"%d ",RIGHT[k][j]);
+		}
+		fprintf(registro,"\n");
+	}
+	fclose(registro);
+
 	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
 	registro=fopen("registro.txt","a+");
 
-	//testar chave de 48bit
-	/* fprintf(registro,"Verificar chave de 48bits: \n");
+/* 	//testar chave de 48bit
+	 fprintf(registro,"Verificar chave de 48bits: \n");
 	for(int k=0;k<=17;k++){
 		fprintf(registro,"%d=> ",k);
 		for(int j=0;j<48;j++){
 			fprintf(registro,"%d ",key48bit[k][j]);
 		}
 		fprintf(registro,"\n");
-	} */
+	}  */
+	 	//testar EXPtext
+	fprintf(registro,"Verificar EXPtest: \n");
+	for(int k=0;k<=47;k++){
+		fprintf(registro,"%d ",EXPtext[k]);
+	}  
+	fprintf(registro,"\n");
 
 	fprintf(registro,"XOR.. \n");
 	fclose(registro);
@@ -573,7 +591,7 @@ void create16Keys()
 	fclose(registro);
 	key64to48(key);
 
-	registro=fopen("registro.txt","a+");
+/* 	registro=fopen("registro.txt","a+");
 	//testar chave de 48bit
 	fprintf(registro,"Verificar chave de 48bits: \n");
 	for(int k=0;k<=17;k++){
@@ -583,7 +601,7 @@ void create16Keys()
 		}
 		fprintf(registro,"\n");
 	}
-	fclose(registro);
+	fclose(registro); */
 
 	fclose(pt);
 }
