@@ -579,8 +579,8 @@ int main()
 	fclose(out);
 	out = fopen("decrypted.txt", "wb+");
 	fclose(out);
-	out = fopen("cipher.txt", "wb+");
-	fclose(out);
+	//out = fopen("cipher.txt", "wb+");
+	//fclose(out);
 
 	// TESTAR TODAS AS CHAVES DE 16 BITS
 	long int N = pow (2,16);
