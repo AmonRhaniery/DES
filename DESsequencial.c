@@ -368,9 +368,15 @@ void Decryption(long int plain[])
 			CIPHER[i] = LEFT[16][i - 32];
 		finalPermutation(i, CIPHER[i]);
 	}
-	for (int i = 0; i < 64; i++)
-		fprintf(out, "%d", ENCRYPTED[i]);
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Mensagem decriptada em bits... \n");	
 
+	for (int i = 0; i < 64; i++){
+		fprintf(out, "%d", ENCRYPTED[i]);
+		fprintf(registro, "%d", ENCRYPTED[i]);
+	}
+	fprintf(registro,"\n");
+	fclose(registro);
 	fclose(out);
 }
 
@@ -467,16 +473,23 @@ void decrypt(long int n)
 	long int plain[n * 64];
 	int i = -1;
 	char ch;
-
-	while (!feof(in)) 
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Recebendo cifra... \n");	
+	while (!feof(in) && i<64) 
 	{
 		ch = getc(in);
 		plain[++i] = ch - 48;
+		fprintf(registro,"%c",ch);
+
 	}
-	
+	fprintf(registro,"\n");
+	fclose(registro);
 	for (int i = 0; i < n; i++) 
 	{
 		Decryption(plain + i * 64);
+		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Mensagem decriptada em bits! Transformando para char... \n");	
+		fclose(registro);
 		bittochar();
 	}
 	fclose(in);
@@ -510,12 +523,13 @@ void create16Keys()
 	
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Criando as 16 chaves.\n");
-	while (!feof(pt)) 
+	fclose(registro);
+	while (!feof(pt) && i<64) 
 	{
 		ch = getc(pt);
 		key[i++] = ch - 48;
 	}
-	
+	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Convertendo de 64 para 48bits...\n");
 	fclose(registro);
 	key64to48(key);
