@@ -462,10 +462,13 @@ void Decryption(long int plain[])
 
 void convertToBits(int ch[])
 {
+	registro=fopen("registro.txt","a+");
 	int value = 0;
 	for (int i = 7; i >= 0; i--)
 		value += (int)pow(2, i) * ch[7 - i];
 	fprintf(out, "%c", value);
+	fprintf(registro, "%c", value);
+	fclose(registro);
 }
 
 int bittochar()
@@ -474,6 +477,9 @@ int bittochar()
 	for (int i = 0; i < 64; i = i + 8)
 		convertToBits(&ENCRYPTED[i]);
 	fclose(out);
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"\n Mensagem em char concluida. \n");
+	fclose(registro);
 }
 
 void key56to48(int round, int pos, int text)
@@ -569,9 +575,6 @@ void decrypt(long int n)
 	for (int i = 0; i < n; i++) 
 	{
 		Decryption(plain + i * 64);
-		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Mensagem decriptada em bits! Transformando para char... \n");	
-		fclose(registro);
 		bittochar();
 	}
 	fclose(in);
@@ -635,6 +638,7 @@ void create16Keys()
 long int findFileSize()
 {
 	FILE* inp = fopen("input.txt", "rb");
+	//FILE* inp = fopen("cipher.txt", "rb");
 	long int size;
 	if (fseek(inp, 0L, SEEK_END))
 		perror("fseek() failed");
@@ -716,18 +720,19 @@ int main()
 {	
 	bool correto=false;
 	FILE* debug;
-	char MSG[]={'A','T','O','M','I','C','O','S'};
+	int MSG[]={1,0,1,0,1,1,1,0,1,1,0,0,0,1,1,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,1,1,1,0,0,0,1,0,1,0};
 	registro=fopen("registro.txt","w+");
 	printf("\nInicio do programa. Verificar arquivo registro.txt.\n");
 	fprintf(registro,"\nEncontrar chave através da força bruta usando DES!\n");
 	fclose(registro);
+
 	// destroy contents of these files (from previous runs, if any)
 	out = fopen("result.txt", "wb+");
 	fclose(out);
 	out = fopen("decrypted.txt", "wb+");
 	fclose(out);
-	//out = fopen("cipher.txt", "wb+");
-	//fclose(out);
+	out = fopen("cipher.txt", "wb+");
+	fclose(out);
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
@@ -771,28 +776,30 @@ int main()
 		create16Keys();
 
 		long int n = findFileSize() / 8;
+		
 		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Arquivo com %d chars. \n",n);
 		fprintf(registro,"Convertendo mensagem original para bits...\n");
 		fclose(registro);
+		
 		convertCharToBit(n);
-
-		//encrypt(n);
+		encrypt(n);
 		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Decriptando cifra...\n");
+		fprintf(registro,"Encriptando mensagem...\n");
 		fclose(registro);
-		decrypt(n);
+		//decrypt(n);
 
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
 		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Verificando mensagem em claro gerada... \n");
-		out=fopen("result.txt", "rb");
+		fprintf(registro,"Verificando mensagem cifrada gerada... \n");
+		out=fopen("cipher.txt", "rb");
 		int j=0;
-		char ch;
-		while (!feof(out) && j<8) {
-			ch = getc(out);
+		int ch;
+		while (!feof(out) && j<64) {
+			ch = getc(out)-48;
 			if (ch==MSG[j]){
 				j++;
-				if(j==8){
+				if(j==64){
 					fprintf(registro,"Correto para chave %lld ! \n", k);
 					correto=true;
 				}
