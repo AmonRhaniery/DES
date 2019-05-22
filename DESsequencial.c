@@ -145,6 +145,7 @@ int PC2[] =
 int SHIFTS[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
 FILE* out;
+FILE* registro;
 int LEFT[17][32], RIGHT[17][32];
 int IPtext[64];
 int EXPtext[48];
@@ -533,7 +534,10 @@ void keyTo64Bits(){
 	int i=0;
 	int j=0;
 	char ch;
-	//int tamanhoEmBits=0;
+	//inicilizar chave de 56 bits com zeros
+	for(int k=0;k<56;k++){
+		chAux[k]=0;
+	}
 	//encontrar quantos bits estão no arquivo para colocá-los no final
 	int size;
 	if (fseek(aux, 0L, SEEK_END))
@@ -542,30 +546,26 @@ void keyTo64Bits(){
 		size = ftell(aux);
 	fclose(aux);
 	//tamanhoEmBits=size/8;
-	printf("Arquivo tem tamanho %d. \n", size);
+	registro = fopen("registro.txt","a+");
+	fprintf(registro,"Arquivo tem tamanho %d. \n", size);
 
 	//colocar os bits no fim do vetor chave
 	aux = fopen("key.txt", "rb");
 	i=56-size;
 	while (!feof(aux) && i<56) {
 		ch = getc(aux);
-		chAux[i] = ch;
+		chAux[i] = ch - 48;
 		i++;
 	}
 	fclose(aux);
-
-	printf("Preenchendo com zeros a esquerda... \n");
-	//preencher o vetor com zeros a esquerda
-	for(int k=0;k<56-size;k++){
-		chAux[k]=0;
-	}
 	
 	//verificar vetor chAux
-	printf("CHAVE 56 BITS: ");
+	fprintf(registro,"CHAVE 56 BITS: ");
 	for(int k=0;k<56;k++){
-		printf("%d",chAux[k]);
+		fprintf(registro,"%d",chAux[k]);
 	}
-	printf("\n");
+	fprintf(registro,"\n");
+	fclose(registro);
 
 	//preencher com 0 a cada oitavo bit
 	for(int k=0;k<64;k++){
@@ -585,11 +585,13 @@ void keyTo64Bits(){
 	fclose(out);
 	
 	//verificar vetor CHAVE
-	printf("CHAVE 64 BITS: ");
+	registro = fopen("registro.txt","a+");
+	fprintf(registro,"CHAVE 64 BITS: ");
 	for(int k=0;k<64;k++){
-		printf("%d",CHAVE[k]);
+		fprintf(registro,"%d",CHAVE[k]);
 	}
-	printf("\n");
+	fprintf(registro,"\n");
+	fclose(registro);
 }
 
 int main()
@@ -597,6 +599,10 @@ int main()
 	bool correto=false;
 	FILE* debug;
 	char MSG[]={'A','T','O','M','I','C','O','S'};
+	registro=fopen("registro.txt","w+");
+	printf("\nInicio do programa. Verificar arquivo registro.txt.\n");
+	fprintf(registro,"\nEncontrar chave através da força bruta usando DES!\n");
+	fclose(registro);
 	// destroy contents of these files (from previous runs, if any)
 	out = fopen("result.txt", "wb+");
 	fclose(out);
@@ -617,28 +623,32 @@ int main()
 		convertToBinary(k);
 		fclose(out);
 		//colocar chave no formato 64bits
-		printf("Testando chave %lld :\n",k);
+		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Testando chave %lld :\n",k);
+		
 
 		//verificar arquivo key.txt
 		out = fopen("key.txt", "rb");
 			while (!feof(out)) {
 				char ch = getc(out);
-				printf("%c",ch);
+				fprintf(registro,"%c",ch);
 		}
-		printf("\n");
-		
+		fprintf(registro,"\n");
+		fclose(registro);
+
 		keyTo64Bits();
 
-		printf("Executando descriptografia com DES com a chave: \n");
-
+		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Executando descriptografia com DES com a chave: \n");
 		//verificar a chave escrita no arquivo
 		debug = fopen ("key.txt","rb");
 		while (!feof(debug)) {
 			char ch = getc(debug);
-			printf("%c",ch);
+			fprintf(registro,"%c",ch);
 		}
-		printf("\n");
-
+		fprintf(registro,"\n");
+		fclose(registro);
+		
 		//TESTAR DES
 		create16Keys();
 
@@ -650,8 +660,8 @@ int main()
 		decrypt(n);
 
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
-
-		printf("Verificando mensagem em claro gerada... \n");
+		registro=fopen("registro.txt","a+");
+		fprintf(registro,"Verificando mensagem em claro gerada... \n");
 		out=fopen("result.txt", "rb");
 		int j=0;
 		char ch;
@@ -660,7 +670,7 @@ int main()
 			if (ch==MSG[j]){
 				j++;
 				if(j==8){
-					printf("Correto para chave %lld ! \n", k);
+					fprintf(registro,"Correto para chave %lld ! \n", k);
 					correto=true;
 				}
 			} else {
@@ -677,7 +687,7 @@ int main()
 
 	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
 
-    printf("Tempo que o programa levou foi de: %.6lf segundos.", time_taken);
-
+    fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.", time_taken);
+	fclose(registro);
 	return 0;
 }
