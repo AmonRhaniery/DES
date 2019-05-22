@@ -252,7 +252,7 @@ void cipher(int Round, int mode)
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Função de expansão.. \n");
 	fclose(registro);
-	//testar RIGHT
+/* 	//testar RIGHT
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Verificar RIGHT: \n");
 	for(int k=0;k<=17;k++){
@@ -262,7 +262,7 @@ void cipher(int Round, int mode)
 		}
 		fprintf(registro,"\n");
 	}
-	fclose(registro);
+	fclose(registro); */
 
 	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
@@ -397,11 +397,37 @@ void Decryption(long int plain[])
 	fclose(registro);
 	for (int i = 0; i < 32; i++)
 		LEFT[0][i] = IPtext[i];
+
+	//testar LEFT
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Verificar LEFT: \n");
+	for(int k=0;k<=17;k++){
+		fprintf(registro,"%d=> ",k);
+		for(int j=0;j<32;j++){
+			fprintf(registro,"%d ",LEFT[k][j]);
+		}
+		fprintf(registro,"\n");
+	}
+	fclose(registro);
+
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Mudança de R.. \n");
 	fclose(registro);
 	for (int i = 32; i < 64; i++)
 		RIGHT[0][i - 32] = IPtext[i];
+
+	//testar RIGHT
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Verificar RIGHT: \n");
+	for(int k=0;k<=17;k++){
+		fprintf(registro,"%d=> ",k);
+		for(int j=0;j<32;j++){
+			fprintf(registro,"%d ",RIGHT[k][j]);
+		}
+		fprintf(registro,"\n");
+	}
+	fclose(registro);
+
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Expansão e S BOX.. \n");
 	fclose(registro);
