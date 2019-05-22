@@ -528,35 +528,44 @@ long int findFileSize()
 
 void keyTo64Bits(){
 	FILE* aux = fopen("key.txt", "rb");
-	FILE* inp = fopen("key.txt", "rb");
-	unsigned int CHAVE[64];
-	unsigned int chAux[56];
+	int CHAVE[64];
+	int chAux[56];
 	int i=0;
 	int j=0;
 	char ch;
-	int tamanhoEmBits=0;
+	//int tamanhoEmBits=0;
 	//encontrar quantos bits estão no arquivo para colocá-los no final
-	long int size;
-	if (fseek(inp, 0L, SEEK_END))
+	int size;
+	if (fseek(aux, 0L, SEEK_END))
 		perror("fseek() failed");
 	else // size will contain no. of chars in input file.
-		size = ftell(inp);
-	fclose(inp);
-	tamanhoEmBits=size/8;
-	printf("Arquivo tem tamanho %ld \n", tamanhoEmBits);
+		size = ftell(aux);
+	fclose(aux);
+	//tamanhoEmBits=size/8;
+	printf("Arquivo tem tamanho %d. \n", size);
 
 	//colocar os bits no fim do vetor chave
+	aux = fopen("key.txt", "rb");
 	i=56-size;
-	while (!feof(aux)) {
+	while (!feof(aux) && i<56) {
 		ch = getc(aux);
 		chAux[i] = ch;
 		i++;
 	}
+	fclose(aux);
+
+	printf("Preenchendo com zeros a esquerda... \n");
 	//preencher o vetor com zeros a esquerda
 	for(int k=0;k<56-size;k++){
 		chAux[k]=0;
 	}
-	fclose(aux);
+	
+	//verificar vetor chAux
+	printf("CHAVE 56 BITS: ");
+	for(int k=0;k<56;k++){
+		printf("%d",chAux[k]);
+	}
+	printf("\n");
 
 	//preencher com 0 a cada oitavo bit
 	for(int k=0;k<64;k++){
@@ -574,6 +583,13 @@ void keyTo64Bits(){
 		fprintf(out, "%d", CHAVE[k]);
 	}
 	fclose(out);
+	
+	//verificar vetor CHAVE
+	printf("CHAVE 64 BITS: ");
+	for(int k=0;k<64;k++){
+		printf("%d",CHAVE[k]);
+	}
+	printf("\n");
 }
 
 int main()
@@ -601,7 +617,16 @@ int main()
 		convertToBinary(k);
 		fclose(out);
 		//colocar chave no formato 64bits
-		printf("Testando chave %lld !\n",k);
+		printf("Testando chave %lld :\n",k);
+
+		//verificar arquivo key.txt
+		out = fopen("key.txt", "rb");
+			while (!feof(out)) {
+				char ch = getc(out);
+				printf("%c",ch);
+		}
+		printf("\n");
+		
 		keyTo64Bits();
 
 		printf("Executando descriptografia com DES com a chave: \n");
@@ -612,7 +637,7 @@ int main()
 			char ch = getc(debug);
 			printf("%c",ch);
 		}
-		printf("/n");
+		printf("\n");
 
 		//TESTAR DES
 		create16Keys();
