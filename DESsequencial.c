@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <math.h>
 #include <time.h>
+#include <sys/time.h>
 
 int IP[] = 
 {
@@ -582,6 +583,9 @@ int main()
 	//out = fopen("cipher.txt", "wb+");
 	//fclose(out);
 
+	struct timeval start, end;
+	gettimeofday(&start, NULL); // Start timer
+
 	// TESTAR TODAS AS CHAVES DE 16 BITS
 	long int N = pow (2,16);
 	for(long int k = 0; k<N;k++){
@@ -621,6 +625,14 @@ int main()
 			break;
 		}
 	}
+
+	gettimeofday(&end, NULL) // End timer
+	
+	double time_taken;
+	time_taken = (end.tv_sec - start.tv_sec) * 1e6;
+  
+    cout << "Tempo que o programa levou foi de: " << time_taken << setprecision(6); 
+    cout << " segundos" << endl; 
 
 	return 0;
 }
