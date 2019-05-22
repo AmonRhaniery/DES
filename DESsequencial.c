@@ -689,13 +689,25 @@ void keyTo64Bits(){
 	fprintf(registro,"\n");
 	fclose(registro);
 
-	//preencher com 0 a cada oitavo bit
+	//preencher com bit paridade a cada oitavo bit
+	int qtdUns=0;
+	int count=0;
 	for(int k=0;k<64;k++){
-		if (k%7==0){
-			CHAVE[k]=0;
+		if (count==7){
+			if(qtdUns%2==0){
+				CHAVE[k]=0;
+			}else{
+				CHAVE[k]=1;
+			}
+			qtdUns=0;
+			count=0;		
 		} else {
 			CHAVE[k]=chAux[j];
+			if(chAux[j]==1){
+				qtdUns+=1;
+			}
 			j++;
+			count++;
 		}
 	}
 
@@ -716,6 +728,10 @@ void keyTo64Bits(){
 	fclose(registro);
 }
 
+void converterbinario(){
+
+}
+
 int main()
 {	
 	bool correto=false;
@@ -726,29 +742,38 @@ int main()
 	fprintf(registro,"\nEncontrar chave através da força bruta usando DES!\n");
 	fclose(registro);
 
-	// destroy contents of these files (from previous runs, if any)
-	out = fopen("result.txt", "wb+");
-	fclose(out);
-	out = fopen("decrypted.txt", "wb+");
-	fclose(out);
-	out = fopen("cipher.txt", "wb+");
-	fclose(out);
-
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
-
 
 	// TESTAR TODAS AS CHAVES DE 16 BITS
 	long long int N = pow (2,16);
 	for(long long int k = 0; k<N;k++){
+
+		// destroy contents of these files (from previous runs, if any)
+		out = fopen("result.txt", "wb+");
+		fclose(out);
+		out = fopen("decrypted.txt", "wb+");
+		fclose(out);
+		out = fopen("cipher.txt", "wb+");
+		fclose(out);
+
 		//criar nova chave de acordo com k
 		out = fopen("key.txt", "wb+");
-		convertToBinary(k);
+		//converter k em binário
+		int a, m;
+		for (int i = 16; i >= 0; i--) 
+		{
+			m = 1 << i;
+			a = k & m;
+			if (a == 0)
+				fprintf(out, "0");
+			else
+				fprintf(out, "1");
+		}
 		fclose(out);
 		//colocar chave no formato 64bits
 		registro=fopen("registro.txt","a+");
 		fprintf(registro,"Testando chave %lld :\n",k);
-		
 
 		//verificar arquivo key.txt
 		out = fopen("key.txt", "rb");
@@ -758,6 +783,7 @@ int main()
 		}
 		fprintf(registro,"\n");
 		fclose(registro);
+		fclose(out);
 
 		keyTo64Bits();
 
@@ -783,10 +809,11 @@ int main()
 		fclose(registro);
 		
 		convertCharToBit(n);
-		encrypt(n);
 		registro=fopen("registro.txt","a+");
 		fprintf(registro,"Encriptando mensagem...\n");
 		fclose(registro);
+		encrypt(n);
+
 		//decrypt(n);
 
 		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
