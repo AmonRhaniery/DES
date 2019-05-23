@@ -146,6 +146,7 @@ int SHIFTS[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
 FILE* out;
 FILE* registro;
+bool msgCorreta;
 int LEFT[17][32], RIGHT[17][32];
 int IPtext[64];
 int EXPtext[48];
@@ -249,9 +250,9 @@ int PBox(int pos, int text)
 
 void cipher(int Round, int mode)
 {
-	registro=fopen("registro.txt","a+");
+	/* registro=fopen("registro.txt","a+");
 	fprintf(registro,"Função de expansão.. \n");
-	fclose(registro);
+	fclose(registro); */
 /* 	//testar RIGHT
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Verificar RIGHT: \n");
@@ -266,7 +267,7 @@ void cipher(int Round, int mode)
 
 	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
-	registro=fopen("registro.txt","a+");
+	/* registro=fopen("registro.txt","a+"); */
 
 /* 	//testar chave de 48bit
 	 fprintf(registro,"Verificar chave de 48bits: \n");
@@ -278,14 +279,14 @@ void cipher(int Round, int mode)
 		fprintf(registro,"\n");
 	}  */
 	 	//testar EXPtext
-	fprintf(registro,"Verificar EXPtest: \n");
+	/* fprintf(registro,"Verificar EXPtest: \n");
 	for(int k=0;k<=47;k++){
 		fprintf(registro,"%d ",EXPtext[k]);
 	}  
-	fprintf(registro,"\n");
+	fprintf(registro,"\n"); */
 
-	fprintf(registro,"XOR.. \n");
-	fclose(registro);
+	/* fprintf(registro,"XOR.. \n");
+	fclose(registro); */
 	for (int i = 0; i < 48; i++) 
 	{
 		if (mode == 0)
@@ -293,17 +294,17 @@ void cipher(int Round, int mode)
 		else
 			XORtext[i] = XOR(EXPtext[i], key48bit[17 - Round][i]);
 	}
-	registro=fopen("registro.txt","a+");
+	/* registro=fopen("registro.txt","a+");
 	fprintf(registro,"S BOX com XORtext: \n");
 	for(int k=0;k<48;k++){
 		fprintf(registro,"%d ",XORtext[k]);
 	}
 	fprintf(registro,"\n");
-	fclose(registro);
+	fclose(registro); */
 	SBox(XORtext);
-	registro=fopen("registro.txt","a+");
+	/* registro=fopen("registro.txt","a+");
 	fprintf(registro,"P Box.. \n");
-	fclose(registro);
+	fclose(registro); */
 	for (int i = 0; i < 32; i++)
 		PBox(i, X2[i]);
 	for (int i = 0; i < 32; i++)
@@ -398,7 +399,7 @@ void Decryption(long int plain[])
 	for (int i = 0; i < 32; i++)
 		LEFT[0][i] = IPtext[i];
 
-	//testar LEFT
+	/* //testar LEFT
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Verificar LEFT: \n");
 	for(int k=0;k<=17;k++){
@@ -426,7 +427,7 @@ void Decryption(long int plain[])
 		}
 		fprintf(registro,"\n");
 	}
-	fclose(registro);
+	fclose(registro); */
 
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Expansão e S BOX.. \n");
@@ -477,9 +478,9 @@ int bittochar()
 	for (int i = 0; i < 64; i = i + 8)
 		convertToBits(&ENCRYPTED[i]);
 	fclose(out);
-	registro=fopen("registro.txt","a+");
+/* 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"\n Mensagem em char concluida. \n");
-	fclose(registro);
+	fclose(registro); */
 }
 
 void key56to48(int round, int pos, int text)
@@ -563,7 +564,7 @@ void decrypt(long int n)
 	char ch;
 	registro=fopen("registro.txt","a+");
 	fprintf(registro,"Recebendo cifra... \n");	
-	while (!feof(in) && i<61) 
+	while (!feof(in) && i<63) 
 	{
 		ch = getc(in);
 		plain[++i] = ch - 48;
@@ -607,16 +608,16 @@ void create16Keys()
 	int i = 0, ch;
 	
 	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Criando as 16 chaves a partir de: \n");
+	fprintf(registro,"Criando as 16 chaves... \n");
 	//fclose(registro);
 	while (!feof(pt) && i<64) 
 	{
 		ch = getc(pt);
 		key[i++] = ch - 48;
-		fprintf(registro,"%d",ch-48);
+		//fprintf(registro,"%d",ch-48);
 	}
 	//registro=fopen("registro.txt","a+");
-	fprintf(registro,"\nConvertendo de 64 para 48bits...\n");
+	fprintf(registro,"Convertendo de 64 para 48bits:\n");
 	fclose(registro);
 	key64to48(key);
 
@@ -667,9 +668,9 @@ void keyTo64Bits(){
 	else // size will contain no. of chars in input file.
 		size = ftell(aux);
 	fclose(aux);
-	//tamanhoEmBits=size/8;
+	
 	registro = fopen("registro.txt","a+");
-	fprintf(registro,"Arquivo tem tamanho %d. \n", size);
+	fprintf(registro,"chave tem %d bits. \n", size-1);
 
 	//colocar os bits no fim do vetor chave
 	aux = fopen("key.txt", "rb");
@@ -689,15 +690,15 @@ void keyTo64Bits(){
 	fprintf(registro,"\n");
 	fclose(registro);
 
-	//preencher com bit paridade a cada oitavo bit
+//preencher com bit paridade a cada oitavo bit
 	int qtdUns=0;
 	int count=0;
 	for(int k=0;k<64;k++){
 		if (count==7){
 			if(qtdUns%2==0){
-				CHAVE[k]=0;
-			}else{
 				CHAVE[k]=1;
+			}else{
+				CHAVE[k]=0;
 			}
 			qtdUns=0;
 			count=0;		
@@ -728,122 +729,129 @@ void keyTo64Bits(){
 	fclose(registro);
 }
 
-void converterbinario(){
+//k valor inteiro long long
+void chave16bits(long long int k){
+	out = fopen("key.txt", "wb+");
+	//converter inteiro k em binário
+	int a, m;
+	for (int i = 16; i >= 0; i--) 
+	{
+		m = 1 << i;
+		a = k & m;
+		if (a == 0)
+			fprintf(out, "0");
+		else
+			fprintf(out, "1");
+	}
+	fclose(out);
 
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Testando chave %lld :\n",k);
+	//verificar chave do arquivo key.txt
+	out = fopen("key.txt", "rb");
+		while (!feof(out)) {
+			char ch = getc(out);
+			fprintf(registro,"%c",ch);
+	}
+	fprintf(registro,"\n");
+	fclose(registro);
+	fclose(out);
+
+	keyTo64Bits(); //chave 64 bits escrita no key.txt
+
+}
+
+void decriptografarDES(){
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Executando descriptografia com DES... \n");
+	fclose(registro);
+
+	create16Keys();
+
+	long int n = findFileSize() / 8;
+
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Convertendo mensagem original para bits...\n");
+	fclose(registro);
+
+	convertCharToBit(n);
+
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Descriptando mensagem original...\n");
+	fclose(registro);
+
+	decrypt(n);
+}
+
+void verificarMensagem(){
+	//verificar se chave está correta, o arquivo bits tem que ser igual ao decrypted
+	registro=fopen("registro.txt","a+");
+	fprintf(registro,"Verificando mensagem decifrada gerada em bits com o arquivo decrypted... \n");
+	fclose(registro);
+
+	FILE* descriptografado=fopen("decrypted.txt", "rb");
+	FILE* bitsOriginal=fopen("bits.txt", "rb");
+	int i=0;
+	while(!feof(out) && i<64){
+		char chDes = getc(descriptografado);
+		char chBits = getc(bitsOriginal);
+		if(chDes==chBits){
+			i++;
+			if(i==64){
+				msgCorreta=true;
+			}
+		}else{
+			break;
+		}
+	}
+	fclose(descriptografado);
+	fclose(bitsOriginal);
 }
 
 int main()
 {	
-	bool correto=false;
-	FILE* debug;
-	int MSG[]={1,0,1,0,1,1,1,0,1,1,0,0,0,1,1,0,0,0,1,0,1,0,1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,1,1,1,0,0,0,1,0,1,0};
+	msgCorreta=false;
 	registro=fopen("registro.txt","w+");
 	printf("\nInicio do programa. Verificar arquivo registro.txt.\n");
-	fprintf(registro,"\nEncontrar chave através da força bruta usando DES!\n");
+	fprintf(registro,"\nEncontrar chave através da força bruta usando DES.\n");
 	fclose(registro);
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
 
-	// TESTAR TODAS AS CHAVES DE 16 BITS
+//chaves de 16bits
 	long long int N = pow (2,16);
-	for(long long int k = 0; k<N;k++){
+	long long int k = 62794;
 
-		// destroy contents of these files (from previous runs, if any)
-		out = fopen("result.txt", "wb+");
+		// Limpar arquivos da mensagem decriptada
+		out = fopen("result.txt", "wb+"); //mensagem decriptada
 		fclose(out);
-		out = fopen("decrypted.txt", "wb+");
+		out = fopen("decrypted.txt", "wb+"); //mensagem decriptada em bits
 		fclose(out);
-		out = fopen("cipher.txt", "wb+");
-		fclose(out);
+		/* out = fopen("cipher.txt", "wb+"); //mensagem criptografada em bits
+		fclose(out); */
 
-		//criar nova chave de acordo com k
-		out = fopen("key.txt", "wb+");
-		//converter k em binário
-		int a, m;
-		for (int i = 16; i >= 0; i--) 
-		{
-			m = 1 << i;
-			a = k & m;
-			if (a == 0)
-				fprintf(out, "0");
-			else
-				fprintf(out, "1");
+		//resolução para chaves de 16 bits
+		chave16bits(k);
+
+		decriptografarDES();
+
+		verificarMensagem();
+
+		if(msgCorreta){
+			registro=fopen("registro.txt","a+");
+    		fprintf(registro,"Mensagem correta!\n");
+			fclose(registro);
+		} else {
+			registro=fopen("registro.txt","a+");
+			fprintf(registro,"Mensagem não encontrada.\n");
+			fclose(registro);
 		}
-		fclose(out);
-		//colocar chave no formato 64bits
-		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Testando chave %lld :\n",k);
-
-		//verificar arquivo key.txt
-		out = fopen("key.txt", "rb");
-			while (!feof(out)) {
-				char ch = getc(out);
-				fprintf(registro,"%c",ch);
-		}
-		fprintf(registro,"\n");
-		fclose(registro);
-		fclose(out);
-
-		keyTo64Bits();
-
-		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Executando descriptografia com DES com a chave: \n");
-		//verificar a chave escrita no arquivo
-		debug = fopen ("key.txt","rb");
-		while (!feof(debug)) {
-			char ch = getc(debug);
-			fprintf(registro,"%c",ch);
-		}
-		fprintf(registro,"\n");
-		fclose(registro);
-		
-		//TESTAR DES
-		create16Keys();
-
-		long int n = findFileSize() / 8;
-		
-		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Arquivo com %d chars. \n",n);
-		fprintf(registro,"Convertendo mensagem original para bits...\n");
-		fclose(registro);
-		
-		convertCharToBit(n);
-		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Encriptando mensagem...\n");
-		fclose(registro);
-		encrypt(n);
-
-		//decrypt(n);
-
-		//verificar se chave está correta, o arquivo result tem que ser igual a mensagem
-		registro=fopen("registro.txt","a+");
-		fprintf(registro,"Verificando mensagem cifrada gerada... \n");
-		out=fopen("cipher.txt", "rb");
-		int j=0;
-		int ch;
-		while (!feof(out) && j<64) {
-			ch = getc(out)-48;
-			if (ch==MSG[j]){
-				j++;
-				if(j==64){
-					fprintf(registro,"Correto para chave %lld ! \n", k);
-					correto=true;
-				}
-			} else {
-				break;
-			}
-		}
-		fclose(out);
-		if (correto){
-			break;
-		}
-	}
 
 	gettimeofday(&end, NULL); // End timer
 
 	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
-
+	registro=fopen("registro.txt","a+");
     fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.", time_taken);
 	fclose(registro);
 	return 0;
