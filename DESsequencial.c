@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdbool.h>
+#include <sys/time.h>
 
 
 int IP[] = 
@@ -700,6 +701,9 @@ int main()
 	registro = fopen("registro.log", "wb+");
 	fclose(registro);
 
+	struct timeval start, end;
+	gettimeofday(&start, NULL); // Start timer
+
 //testar todas as chaves de 0 a 2^16
 	long long int N=pow(2,16);
 	long long int k;	
@@ -727,9 +731,13 @@ int main()
 			fprintf(registro,"Mensagem não encontrada.\n");
 			fclose(registro);
 		}
-		
-		
 	}
 
+	gettimeofday(&end, NULL); // End timer
+	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
+	registro=fopen("registro.log","a+");
+    fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.\n", time_taken);
+	fclose(registro);
+	
 	return 0;
 }
