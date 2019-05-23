@@ -547,7 +547,7 @@ void keyTo64Bits(){
 		size = ftell(aux);
 	fclose(aux);
 	
-	registro = fopen("registro.txt","a+");
+	registro = fopen("registro.log","a+");
 	fprintf(registro,"chave tem %d bits. \n", size-1);
 
 	//colocar os bits no fim do vetor chave
@@ -598,7 +598,7 @@ void keyTo64Bits(){
 	fclose(out);
 	
 	//verificar vetor CHAVE
-	registro = fopen("registro.txt","a+");
+	registro = fopen("registro.log","a+");
 	fprintf(registro,"CHAVE 64 BITS: ");
 	for(int k=0;k<64;k++){
 		fprintf(registro,"%d",CHAVE[k]);
@@ -623,7 +623,7 @@ void chave16bits(long long int k){
 	}
 	fclose(out);
 
-	registro=fopen("registro.txt","a+");
+	registro=fopen("registro.log","a+");
 	fprintf(registro,"Testando chave %lld :\n",k);
 	//verificar chave do arquivo key.txt
 	out = fopen("key.txt", "rb");
@@ -640,7 +640,7 @@ void chave16bits(long long int k){
 }
 
 void decriptografarDES(){
-	registro=fopen("registro.txt","a+");
+	registro=fopen("registro.log","a+");
 	fprintf(registro,"Executando descriptografia com DES... \n");
 	fclose(registro);
 
@@ -648,13 +648,13 @@ void decriptografarDES(){
 
 	long int n = findFileSize() / 8;
 
-	registro=fopen("registro.txt","a+");
+	registro=fopen("registro.log","a+");
 	fprintf(registro,"Convertendo mensagem original para bits...\n");
 	fclose(registro);
 
 	convertCharToBit(n);
 
-	registro=fopen("registro.txt","a+");
+	registro=fopen("registro.log","a+");
 	fprintf(registro,"Descriptando mensagem original...\n");
 	fclose(registro);
 
@@ -663,7 +663,7 @@ void decriptografarDES(){
 
 void verificarMensagem(){
 	//verificar se chave está correta, o arquivo bits tem que ser igual ao decrypted
-	registro=fopen("registro.txt","a+");
+	registro=fopen("registro.log","a+");
 	fprintf(registro,"Verificando mensagem decifrada gerada em bits com o arquivo decrypted... \n");
 	fclose(registro);
 
@@ -703,11 +703,11 @@ int main()
 	verificarMensagem();
 
 	if(msgCorreta){
-			registro=fopen("registro.txt","a+");
+			registro=fopen("registro.log","a+");
     		fprintf(registro,"Mensagem correta!\n");
 			fclose(registro);
 		} else {
-			registro=fopen("registro.txt","a+");
+			registro=fopen("registro.log","a+");
 			fprintf(registro,"Mensagem não encontrada.\n");
 			fclose(registro);
 		}
