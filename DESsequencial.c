@@ -691,28 +691,45 @@ void verificarMensagem(){
 int main()
 {
 	// destroy contents of these files (from previous runs, if any)
-	out = fopen("result.txt", "wb+");
+/* 	out = fopen("result.txt", "wb+");
 	fclose(out);
 	out = fopen("decrypted.txt", "wb+");
-	fclose(out);
+	fclose(out); */
 	/* out = fopen("cipher.txt", "wb+");
 	fclose(out); */
+	registro = fopen("registro.log", "wb+");
+	fclose(registro);
 
-	chave16bits(62794);
+//testar todas as chaves de 0 a 2^16
+	long long int N=pow(2,16);
+	long long int k;	
+	for (k=0;k<N;k++){
+		msgCorreta=false;
+		// destroy contents of these files (from previous runs, if any)
+		out = fopen("result.txt", "wb+");
+		fclose(out);
+		out = fopen("decrypted.txt", "wb+");
+		fclose(out);
+		/* out = fopen("cipher.txt", "wb+");
+		fclose(out); */
 
-	decriptografarDES();
+		chave16bits(k);
 
-	verificarMensagem();
+		decriptografarDES();
 
-	if(msgCorreta){
-			registro=fopen("registro.log","a+");
-    		fprintf(registro,"Mensagem correta!\n");
-			fclose(registro);
-		} else {
+		verificarMensagem();
+
+		if(msgCorreta)
+			break;
+		else
+		{
 			registro=fopen("registro.log","a+");
 			fprintf(registro,"Mensagem não encontrada.\n");
 			fclose(registro);
 		}
+		
+		
+	}
 
 	return 0;
 }
