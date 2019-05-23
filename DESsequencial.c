@@ -734,7 +734,9 @@ int main()
 	}
 
 	gettimeofday(&end, NULL); // End timer
-	double time_taken = (end.tv_sec - start.tv_sec);
+	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
+	time_taken = (time_taken + (end.tv_usec -  
+                              start.tv_usec)) * 1e-6;
 	registro=fopen("registro.log","a+");
     fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.\n", time_taken);
 	fclose(registro);
