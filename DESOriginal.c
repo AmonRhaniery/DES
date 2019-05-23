@@ -501,10 +501,12 @@ void create16Keys()
 	unsigned int key[64];
 	int i = 0, ch;
 
-	while (!feof(pt)) 
+	ch = getc(pt);
+	while (ch!=EOF) 
 	{
-		ch = getc(pt);
+		
 		key[i++] = ch - 48;
+		ch = getc(pt);
 	}
 
 	key64to48(key);
