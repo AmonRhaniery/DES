@@ -3,8 +3,8 @@
 #include <ctype.h>
 #include <math.h>
 #include <time.h>
-#include <sys/time.h>
 #include <stdbool.h>
+
 
 int IP[] = 
 {
@@ -250,43 +250,9 @@ int PBox(int pos, int text)
 
 void cipher(int Round, int mode)
 {
-	/* registro=fopen("registro.txt","a+");
-	fprintf(registro,"Função de expansão.. \n");
-	fclose(registro); */
-/* 	//testar RIGHT
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Verificar RIGHT: \n");
-	for(int k=0;k<=17;k++){
-		fprintf(registro,"%d=> ",k);
-		for(int j=0;j<32;j++){
-			fprintf(registro,"%d ",RIGHT[k][j]);
-		}
-		fprintf(registro,"\n");
-	}
-	fclose(registro); */
-
 	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
-	/* registro=fopen("registro.txt","a+"); */
 
-/* 	//testar chave de 48bit
-	 fprintf(registro,"Verificar chave de 48bits: \n");
-	for(int k=0;k<=17;k++){
-		fprintf(registro,"%d=> ",k);
-		for(int j=0;j<48;j++){
-			fprintf(registro,"%d ",key48bit[k][j]);
-		}
-		fprintf(registro,"\n");
-	}  */
-	 	//testar EXPtext
-	/* fprintf(registro,"Verificar EXPtest: \n");
-	for(int k=0;k<=47;k++){
-		fprintf(registro,"%d ",EXPtext[k]);
-	}  
-	fprintf(registro,"\n"); */
-
-	/* fprintf(registro,"XOR.. \n");
-	fclose(registro); */
 	for (int i = 0; i < 48; i++) 
 	{
 		if (mode == 0)
@@ -294,17 +260,9 @@ void cipher(int Round, int mode)
 		else
 			XORtext[i] = XOR(EXPtext[i], key48bit[17 - Round][i]);
 	}
-	/* registro=fopen("registro.txt","a+");
-	fprintf(registro,"S BOX com XORtext: \n");
-	for(int k=0;k<48;k++){
-		fprintf(registro,"%d ",XORtext[k]);
-	}
-	fprintf(registro,"\n");
-	fclose(registro); */
+
 	SBox(XORtext);
-	/* registro=fopen("registro.txt","a+");
-	fprintf(registro,"P Box.. \n");
-	fclose(registro); */
+
 	for (int i = 0; i < 32; i++)
 		PBox(i, X2[i]);
 	for (int i = 0; i < 32; i++)
@@ -388,59 +346,21 @@ void Encryption(long int plain[])
 void Decryption(long int plain[])
 {
 	out = fopen("decrypted.txt", "ab+");
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Permutação inicial.. \n");
-	fclose(registro);
 	for (int i = 0; i < 64; i++)
 		initialPermutation(i, plain[i]);
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Mudança de L.. \n");
-	fclose(registro);
+
 	for (int i = 0; i < 32; i++)
 		LEFT[0][i] = IPtext[i];
 
-	/* //testar LEFT
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Verificar LEFT: \n");
-	for(int k=0;k<=17;k++){
-		fprintf(registro,"%d=> ",k);
-		for(int j=0;j<32;j++){
-			fprintf(registro,"%d ",LEFT[k][j]);
-		}
-		fprintf(registro,"\n");
-	}
-	fclose(registro);
-
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Mudança de R.. \n");
-	fclose(registro);
 	for (int i = 32; i < 64; i++)
 		RIGHT[0][i - 32] = IPtext[i];
 
-	//testar RIGHT
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Verificar RIGHT: \n");
-	for(int k=0;k<=17;k++){
-		fprintf(registro,"%d=> ",k);
-		for(int j=0;j<32;j++){
-			fprintf(registro,"%d ",RIGHT[k][j]);
-		}
-		fprintf(registro,"\n");
-	}
-	fclose(registro); */
-
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Expansão e S BOX.. \n");
-	fclose(registro);
 	for (int k = 1; k < 17; k++) {
 		cipher(k, 1);
 
 		for (int i = 0; i < 32; i++)
 			LEFT[k][i] = RIGHT[k - 1][i];
 	}
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Juntando cifras direita e esquerda e fazendo permutação final.. \n");
-	fclose(registro);
 	for (int i = 0; i < 64; i++) 
 	{
 		if (i < 32)
@@ -449,27 +369,18 @@ void Decryption(long int plain[])
 			CIPHER[i] = LEFT[16][i - 32];
 		finalPermutation(i, CIPHER[i]);
 	}
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Mensagem decriptada em bits: \n");	
-
-	for (int i = 0; i < 64; i++){
+	for (int i = 0; i < 64; i++)
 		fprintf(out, "%d", ENCRYPTED[i]);
-		fprintf(registro, "%d", ENCRYPTED[i]);
-	}
-	fprintf(registro,"\n");
-	fclose(registro);
+
 	fclose(out);
 }
 
 void convertToBits(int ch[])
 {
-	registro=fopen("registro.txt","a+");
 	int value = 0;
 	for (int i = 7; i >= 0; i--)
 		value += (int)pow(2, i) * ch[7 - i];
 	fprintf(out, "%c", value);
-	fprintf(registro, "%c", value);
-	fclose(registro);
 }
 
 int bittochar()
@@ -478,9 +389,6 @@ int bittochar()
 	for (int i = 0; i < 64; i = i + 8)
 		convertToBits(&ENCRYPTED[i]);
 	fclose(out);
-/* 	registro=fopen("registro.txt","a+");
-	fprintf(registro,"\n Mensagem em char concluida. \n");
-	fclose(registro); */
 }
 
 void key56to48(int round, int pos, int text)
@@ -490,7 +398,6 @@ void key56to48(int round, int pos, int text)
 		if (PC2[i] == pos + 1)
 			break;
 	key48bit[round][i] = text;
-	
 }
 
 int key64to56(int pos, int text)
@@ -507,11 +414,9 @@ void key64to48(unsigned int key[])
 	int k, backup[17][2];
 	int CD[17][56];
 	int C[17][28], D[17][28];
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Conversão de 64 para 56bits... \n");
+
 	for (int i = 0; i < 64; i++)
 		key64to56(i, key[i]);
-	fclose(registro);
 
 	for (int i = 0; i < 56; i++)
 		if (i < 28)
@@ -551,9 +456,6 @@ void key64to48(unsigned int key[])
 	for (int j = 1; j < 17; j++)
 		for (int i = 0; i < 56; i++)
 			key56to48(j, i, CD[j][i]);
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Chave de 48bits gerada! \n");
-	fclose(registro);
 }
 
 void decrypt(long int n)
@@ -562,17 +464,13 @@ void decrypt(long int n)
 	long int plain[n * 64];
 	int i = -1;
 	char ch;
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Recebendo cifra... \n");	
-	while (!feof(in) && i<63) 
+
+	while (!feof(in)) 
 	{
 		ch = getc(in);
 		plain[++i] = ch - 48;
-		fprintf(registro,"%c",ch);
-
 	}
-	fprintf(registro,"\n");
-	fclose(registro);
+	
 	for (int i = 0; i < n; i++) 
 	{
 		Decryption(plain + i * 64);
@@ -606,40 +504,20 @@ void create16Keys()
 	FILE* pt = fopen("key.txt", "rb");
 	unsigned int key[64];
 	int i = 0, ch;
-	
-	registro=fopen("registro.txt","a+");
-	fprintf(registro,"Criando as 16 chaves... \n");
-	//fclose(registro);
-	while (!feof(pt) && i<64) 
+
+	while (!feof(pt)) 
 	{
 		ch = getc(pt);
 		key[i++] = ch - 48;
-		//fprintf(registro,"%d",ch-48);
 	}
-	//registro=fopen("registro.txt","a+");
-	fprintf(registro,"Convertendo de 64 para 48bits:\n");
-	fclose(registro);
+
 	key64to48(key);
-
-/* 	registro=fopen("registro.txt","a+");
-	//testar chave de 48bit
-	fprintf(registro,"Verificar chave de 48bits: \n");
-	for(int k=0;k<=17;k++){
-		fprintf(registro,"%d=> ",k);
-		for(int j=0;j<48;j++){
-			fprintf(registro,"%d ",key48bit[k][j]);
-		}
-		fprintf(registro,"\n");
-	}
-	fclose(registro); */
-
 	fclose(pt);
 }
 
 long int findFileSize()
 {
 	FILE* inp = fopen("input.txt", "rb");
-	//FILE* inp = fopen("cipher.txt", "rb");
 	long int size;
 	if (fseek(inp, 0L, SEEK_END))
 		perror("fseek() failed");
@@ -809,36 +687,22 @@ void verificarMensagem(){
 }
 
 int main()
-{	
-	msgCorreta=false;
-	registro=fopen("registro.txt","w+");
-	printf("\nInicio do programa. Verificar arquivo registro.txt.\n");
-	fprintf(registro,"\nEncontrar chave através da força bruta usando DES.\n");
-	fclose(registro);
+{
+	// destroy contents of these files (from previous runs, if any)
+	out = fopen("result.txt", "wb+");
+	fclose(out);
+	out = fopen("decrypted.txt", "wb+");
+	fclose(out);
+	/* out = fopen("cipher.txt", "wb+");
+	fclose(out); */
 
-	struct timeval start, end;
-	gettimeofday(&start, NULL); // Start timer
+	chave16bits(62794);
 
-//chaves de 16bits
-	long long int N = pow (2,16);
-	long long int k = 62794;
+	decriptografarDES();
 
-		// Limpar arquivos da mensagem decriptada
-		out = fopen("result.txt", "wb+"); //mensagem decriptada
-		fclose(out);
-		out = fopen("decrypted.txt", "wb+"); //mensagem decriptada em bits
-		fclose(out);
-		/* out = fopen("cipher.txt", "wb+"); //mensagem criptografada em bits
-		fclose(out); */
+	verificarMensagem();
 
-		//resolução para chaves de 16 bits
-		chave16bits(k);
-
-		decriptografarDES();
-
-		verificarMensagem();
-
-		if(msgCorreta){
+	if(msgCorreta){
 			registro=fopen("registro.txt","a+");
     		fprintf(registro,"Mensagem correta!\n");
 			fclose(registro);
@@ -848,11 +712,5 @@ int main()
 			fclose(registro);
 		}
 
-	gettimeofday(&end, NULL); // End timer
-
-	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
-	registro=fopen("registro.txt","a+");
-    fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.", time_taken);
-	fclose(registro);
 	return 0;
 }
