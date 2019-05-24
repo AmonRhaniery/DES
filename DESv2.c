@@ -473,6 +473,13 @@ void decrypt(long int n)
 		ch = getc(in);
 		plain[++i] = ch - 48;
 	}
+
+	/* ch=getc(in);
+	while (ch!=EOF) 
+	{
+		plain[++i] = ch - 48;
+		ch = getc(in);
+	} */
 	
 	for (int i = 0; i < n; i++) 
 	{
@@ -511,7 +518,6 @@ void create16Keys()
 	ch = getc(pt);
 	while (ch!=EOF) 
 	{
-		
 		key[i++] = ch - 48;
 		ch = getc(pt);
 	}
@@ -540,7 +546,7 @@ void keyTo64Bits(){
 	int i=0;
 	int j=0;
 	char ch;
-	//inicilizar chave de 56 bits com zeros
+	//inicilizar chave de 56 bits com zeros /* AINDA É PRECISO? */
 	for(int k=0;k<56;k++){
 		chAux[k]=0;
 	}
@@ -553,7 +559,7 @@ void keyTo64Bits(){
 	fclose(aux);
 	
 	registro = fopen("registro.log","a+");
-	fprintf(registro,"chave tem %d bits. \n", size-1);
+	fprintf(registro,"chave tem %d bits. \n", size);
 
 	//colocar os bits no fim do vetor chave
 	aux = fopen("key.txt", "rb");
@@ -616,8 +622,8 @@ void keyTo64Bits(){
 void chavebits(long long int k){
 	out = fopen("key.txt", "wb+");
 	//converter inteiro k em binário
-	/* long long int a, m;
-	for (int i = 55; i >= 0; i--) 
+	int a, m;
+	for (int i = 15; i >= 0; i--) 
 	{
 		m = 1 << i;
 		a = k & m;
@@ -626,22 +632,10 @@ void chavebits(long long int k){
 		else
 			fprintf(out, "1");
 	}
-	fclose(out); */
-    long long int c;
-    long long unsigned int m;
-	for (c = 55; c >= 0; c--)
-    {
-        m = k >> c;
-
-        if (m & 1)
-            fprintf(out, "1");
-        else
-            fprintf(out, "0");
-    }
 	fclose(out);
 
 	registro=fopen("registro.log","a+");
-	fprintf(registro,"Testando chave %lld :\n",k);
+	fprintf(registro,"Testando chave %lld para %d bits:\n",k,BITS[vez]);
 	//verificar chave do arquivo key.txt
 	out = fopen("key.txt", "rb");
 		while (!feof(out)) {
@@ -741,21 +735,21 @@ void escreverCifra(){
 
 int main()
 {
-	// destroy contents of these files (from previous runs, if any)
+	// O Programa deve rodar 26 vezes para encontrar chaves com tamanho de BITS[vez]. Deve ter o arquivo cifras.txt preenchido, assim como o input.txt!
 
 	registro = fopen("registro.log", "wb+");
 	fclose(registro);
 	//zerar o arquivo de chaves encontradas
- 	out = fopen("chaves.txt", "wb+");
+	out = fopen("chaves.txt", "wb+");
 	fclose(out);
-	vez=0; //vez=0 é chave de 16 bitz 
+	vez=0; //vez=0 é chave de 16 bitz
 
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
 
-  	for(vez=0;vez<26;vez++){ 
-		long long unsigned int N=pow(2,BITS[vez]); //limite de chave que pode ser usada, de acordo com a quantidade de bits especificada para a cifra em questão
-		long long unsigned int k; //chave da vez
+/* 	for(vez=0;vez<1;vez++){
+		long long int N=pow(2,BITS[vez]); //limite de chave que pode ser usada, de acordo com a quantidade de bits especificada para a cifra em questão
+		long long int k; //chave da vez
 		escreverCifra(); //escrever qual é a cifra da vez
 
 		for(k=0;k<N;k++){
@@ -790,7 +784,7 @@ int main()
 				fclose(registro);
 
 				fclose(in);
-				fclose(out); 
+				fclose(out);
 				break;
 			}
 			else{
@@ -801,8 +795,9 @@ int main()
 		}
 
 	}
-	
-/*   //testar todas as chaves de 0 a 2^16
+	 */
+
+ //testar todas as chaves de 0 a 2^16
 	long long int N=pow(2,16);
 	long long int k;	
 	for (k=0;k<N;k++){
@@ -827,9 +822,9 @@ int main()
 			fprintf(registro,"Mensagem não encontrada.\n");
 			fclose(registro);
 		}
-	}  */
+	} 
 
-	gettimeofday(&end, NULL); // End timer
+	gettimeofday(&end, NULL); // terminar timer
 	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
 	time_taken = (time_taken + (end.tv_usec -  
                               start.tv_usec)) * 1e-6;
