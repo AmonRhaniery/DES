@@ -552,8 +552,8 @@ void keyTo64Bits(){
 		size = ftell(aux);
 	fclose(aux);
 	
-	registro = fopen("registro.log","a+");
-	fprintf(registro,"chave tem %d bits. \n", size-1);
+	//registro = fopen("registro.log","a+");
+	//fprintf(registro,"chave tem %d bits. \n", size-1);
 
 	//colocar os bits no fim do vetor chave
 	aux = fopen("key.txt", "rb");
@@ -566,12 +566,12 @@ void keyTo64Bits(){
 	fclose(aux);
 	
 	//verificar vetor chAux
-	fprintf(registro,"CHAVE 56 BITS: ");
+/* 	fprintf(registro,"CHAVE 56 BITS: ");
 	for(int k=0;k<56;k++){
 		fprintf(registro,"%d",chAux[k]);
 	}
 	fprintf(registro,"\n");
-	fclose(registro);
+	fclose(registro); */
 
 //preencher com bit paridade a cada oitavo bit
 	int qtdUns=0;
@@ -603,13 +603,13 @@ void keyTo64Bits(){
 	fclose(out);
 	
 	//verificar vetor CHAVE
-	registro = fopen("registro.log","a+");
+/* 	registro = fopen("registro.log","a+");
 	fprintf(registro,"CHAVE 64 BITS: ");
 	for(int k=0;k<64;k++){
 		fprintf(registro,"%d",CHAVE[k]);
 	}
 	fprintf(registro,"\n");
-	fclose(registro);
+	fclose(registro); */
 }
 
 //k valor inteiro long long
@@ -640,16 +640,16 @@ void chavebits(long long int k){
     }
 	fclose(out);
 
-	registro=fopen("registro.log","a+");
-	fprintf(registro,"Testando chave %lld :\n",k);
+	//registro=fopen("registro.log","a+");
+	//fprintf(registro,"Testando chave %lld :\n",k);
 	//verificar chave do arquivo key.txt
 	out = fopen("key.txt", "rb");
 		while (!feof(out)) {
 			char ch = getc(out);
-			fprintf(registro,"%c",ch);
+			//fprintf(registro,"%c",ch);
 	}
-	fprintf(registro,"\n");
-	fclose(registro);
+	//fprintf(registro,"\n");
+	//fclose(registro);
 	fclose(out);
 
 	keyTo64Bits(); //chave 64 bits escrita no key.txt
@@ -657,32 +657,32 @@ void chavebits(long long int k){
 }
 
 void decriptografarDES(){
-	registro=fopen("registro.log","a+");
+/* 	registro=fopen("registro.log","a+");
 	fprintf(registro,"Executando descriptografia com DES... \n");
-	fclose(registro);
+	fclose(registro); */
 
 	create16Keys();
 
 	long int n = findFileSize() / 8;
 
-	registro=fopen("registro.log","a+");
+/* 	registro=fopen("registro.log","a+");
 	fprintf(registro,"Convertendo mensagem original para bits...\n");
-	fclose(registro);
+	fclose(registro); */
 
 	convertCharToBit(n);
 
-	registro=fopen("registro.log","a+");
+/* 	registro=fopen("registro.log","a+");
 	fprintf(registro,"Descriptando mensagem original...\n");
-	fclose(registro);
+	fclose(registro); */
 
 	decrypt(n);
 }
 
 void verificarMensagem(){
 	//verificar se chave está correta, o arquivo bits tem que ser igual ao decrypted
-	registro=fopen("registro.log","a+");
+/* 	registro=fopen("registro.log","a+");
 	fprintf(registro,"Verificando mensagem decifrada gerada em bits com o arquivo decrypted... \n");
-	fclose(registro);
+	fclose(registro); */
 
 	FILE* descriptografado=fopen("decrypted.txt", "rb");
 	FILE* bitsOriginal=fopen("bits.txt", "rb");
