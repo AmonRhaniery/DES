@@ -794,9 +794,9 @@ int main()
 				break;
 			}
 			else{
-					registro=fopen("registro.log","a+");
+/* 					registro=fopen("registro.log","a+");
 					fprintf(registro,"Mensagem não encontrada para %d bits.\n", BITS[vez]);
-					fclose(registro);
+					fclose(registro); */
 				}
 		}
 
