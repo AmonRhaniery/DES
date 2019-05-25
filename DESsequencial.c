@@ -753,7 +753,7 @@ int main()
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
 
-  	for(vez=0;vez<26;vez++){ 
+  	for(vez=0;vez<1;vez++){ 
 		long long unsigned int N=pow(2,BITS[vez]); //limite de chave que pode ser usada, de acordo com a quantidade de bits especificada para a cifra em questão
 		long long unsigned int k; //chave da vez
 		escreverCifra(); //escrever qual é a cifra da vez
@@ -794,40 +794,18 @@ int main()
 				break;
 			}
 			else{
-/* 					registro=fopen("registro.log","a+");
+ 					/* registro=fopen("registro.log","a+");
 					fprintf(registro,"Mensagem não encontrada para %d bits.\n", BITS[vez]);
-					fclose(registro); */
+					fclose(registro);  */
 				}
+		}
+		if (!msgCorreta){
+ 					 registro=fopen("registro.log","a+");
+					fprintf(registro,"Mensagem não encontrada para %d bits.\n", BITS[vez]);
+					fclose(registro);
 		}
 
 	}
-	
-/*   //testar todas as chaves de 0 a 2^16
-	long long int N=pow(2,16);
-	long long int k;	
-	for (k=0;k<N;k++){
-		msgCorreta=false;
-		// destroy contents of these files (from previous runs, if any)
-		out = fopen("result.txt", "wb+");
-		fclose(out);
-		out = fopen("decrypted.txt", "wb+");
-		fclose(out);
-
-		chavebits(k);
-
-		decriptografarDES();
-
-		verificarMensagem();
-
-		if(msgCorreta)
-			break;
-		else
-		{
-			registro=fopen("registro.log","a+");
-			fprintf(registro,"Mensagem não encontrada.\n");
-			fclose(registro);
-		}
-	}  */
 
 	gettimeofday(&end, NULL); // End timer
 	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
