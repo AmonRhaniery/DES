@@ -161,6 +161,10 @@ int CIPHER[64];
 int ENCRYPTED[64];
 int BITS[] = {16,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56};
 int vez;
+int CHAVE[64];
+int CHAVES56[56];
+int CIFRA[64];
+int DESCRIPTADO[64];
 
 void expansion_function(int pos, int text)
 {
@@ -348,7 +352,7 @@ void Encryption(long int plain[])
 
 void Decryption(long int plain[])
 {
-	out = fopen("decrypted.txt", "ab+");
+	//out = fopen("decrypted.txt", "ab+");
 	for (int i = 0; i < 64; i++)
 		initialPermutation(i, plain[i]);
 
@@ -373,9 +377,10 @@ void Decryption(long int plain[])
 		finalPermutation(i, CIPHER[i]);
 	}
 	for (int i = 0; i < 64; i++)
-		fprintf(out, "%d", ENCRYPTED[i]);
+		DESCRIPTADO[i]=ENCRYPTED[i];
+		//fprintf(out, "%d", ENCRYPTED[i]);
 
-	fclose(out);
+	//fclose(out);
 }
 
 void convertToBits(int ch[])
@@ -463,23 +468,17 @@ void key64to48(unsigned int key[])
 
 void decrypt(long int n)
 {
-	FILE* in = fopen("cipher.txt", "rb");
 	long int plain[n * 64];
 	int i = -1;
-	char ch;
 
-	while (!feof(in)) 
-	{
-		ch = getc(in);
-		plain[++i] = ch - 48;
+	for(int k=0;k<64;k++){
+		plain[k]=CIFRA[k];
 	}
 	
 	for (int i = 0; i < n; i++) 
 	{
 		Decryption(plain + i * 64);
-		bittochar();
 	}
-	fclose(in);
 }
 
 void encrypt(long int n)
@@ -504,20 +503,16 @@ void encrypt(long int n)
 
 void create16Keys()
 {
-	FILE* pt = fopen("key.txt", "rb");
+
 	unsigned int key[64];
 	int i = 0, ch;
 
-	ch = getc(pt);
-	while (ch!=EOF) 
-	{
-		
-		key[i++] = ch - 48;
-		ch = getc(pt);
+	for (i=0;i<64;i++){
+		key[i]=CHAVE[i];
 	}
 
 	key64to48(key);
-	fclose(pt);
+
 }
 
 long int findFileSize()
@@ -534,44 +529,9 @@ long int findFileSize()
 }
 
 void keyTo64Bits(){
-	FILE* aux = fopen("key.txt", "rb");
-	int CHAVE[64];
-	int chAux[56];
 	int i=0;
 	int j=0;
 	char ch;
-	//inicilizar chave de 56 bits com zeros
-	for(int k=0;k<56;k++){
-		chAux[k]=0;
-	}
-	//encontrar quantos bits estão no arquivo para colocá-los no final
-	int size;
-	if (fseek(aux, 0L, SEEK_END))
-		perror("fseek() failed");
-	else // size will contain no. of chars in input file.
-		size = ftell(aux);
-	fclose(aux);
-	
-	//registro = fopen("registro.log","a+");
-	//fprintf(registro,"chave tem %d bits. \n", size-1);
-
-	//colocar os bits no fim do vetor chave
-	aux = fopen("key.txt", "rb");
-	i=56-size;
-	while (!feof(aux) && i<56) {
-		ch = getc(aux);
-		chAux[i] = ch - 48;
-		i++;
-	}
-	fclose(aux);
-	
-	//verificar vetor chAux
-/* 	fprintf(registro,"CHAVE 56 BITS: ");
-	for(int k=0;k<56;k++){
-		fprintf(registro,"%d",chAux[k]);
-	}
-	fprintf(registro,"\n");
-	fclose(registro); */
 
 //preencher com bit paridade a cada oitavo bit
 	int qtdUns=0;
@@ -586,71 +546,50 @@ void keyTo64Bits(){
 			qtdUns=0;
 			count=0;		
 		} else {
-			CHAVE[k]=chAux[j];
-			if(chAux[j]==1){
+			CHAVE[k]=CHAVES56[j];
+			if(CHAVES56[j]==1){
 				qtdUns+=1;
 			}
 			j++;
 			count++;
 		}
 	}
-
-	//escrever a chave 64bits no arquivo
-	out = fopen("key.txt", "wb+");
-	for(int k=0;k<64;k++){
-		fprintf(out, "%d", CHAVE[k]);
-	}
-	fclose(out);
 	
 	//verificar vetor CHAVE
-/* 	registro = fopen("registro.log","a+");
+ 	registro = fopen("registro.log","a+");
 	fprintf(registro,"CHAVE 64 BITS: ");
 	for(int k=0;k<64;k++){
 		fprintf(registro,"%d",CHAVE[k]);
 	}
 	fprintf(registro,"\n");
-	fclose(registro); */
+	fclose(registro);
 }
 
 //k valor inteiro long long
 void chavebits(long long int k){
-	out = fopen("key.txt", "wb+");
-	//converter inteiro k em binário
-	/* long long int a, m;
-	for (int i = 55; i >= 0; i--) 
-	{
-		m = 1 << i;
-		a = k & m;
-		if (a == 0)
-			fprintf(out, "0");
-		else
-			fprintf(out, "1");
-	}
-	fclose(out); */
-    long long int c;
+	long long int c;
     long long unsigned int m;
+	int j=0;
 	for (c = 55; c >= 0; c--)
     {
         m = k >> c;
 
         if (m & 1)
-            fprintf(out, "1");
+			CHAVES56[j]=1;
         else
-            fprintf(out, "0");
+			CHAVES56[j]=0;
+	j++;
     }
-	fclose(out);
 
-	//registro=fopen("registro.log","a+");
-	//fprintf(registro,"Testando chave %lld :\n",k);
+/* 	registro=fopen("registro.log","a+");
+	fprintf(registro,"Testando chave %lld :\n",k); */
 	//verificar chave do arquivo key.txt
-	out = fopen("key.txt", "rb");
-		while (!feof(out)) {
-			char ch = getc(out);
-			//fprintf(registro,"%c",ch);
+
+	for (int k=0;k<56;k++){
+		fprintf(registro,"%d",CHAVES56[k]);
 	}
-	//fprintf(registro,"\n");
-	//fclose(registro);
-	fclose(out);
+	fprintf(registro,"\n");
+	fclose(registro);
 
 	keyTo64Bits(); //chave 64 bits escrita no key.txt
 
@@ -684,13 +623,13 @@ void verificarMensagem(){
 	fprintf(registro,"Verificando mensagem decifrada gerada em bits com o arquivo decrypted... \n");
 	fclose(registro); */
 
-	FILE* descriptografado=fopen("decrypted.txt", "rb");
+// 	FILE* descriptografado=fopen("decrypted.txt", "rb");
 	FILE* bitsOriginal=fopen("bits.txt", "rb");
 	int i=0;
-	while(!feof(out) && i<64){
-		char chDes = getc(descriptografado);
+	while(i<64){
+		//char chDes = getc(descriptografado);
 		char chBits = getc(bitsOriginal);
-		if(chDes==chBits){
+		if(DESCRIPTADO[i]==chBits-48){
 			i++;
 			if(i==64){
 				msgCorreta=true;
@@ -699,13 +638,13 @@ void verificarMensagem(){
 			break;
 		}
 	}
-	fclose(descriptografado);
-	fclose(bitsOriginal);
+	//fclose(descriptografado);
+	fclose(bitsOriginal); 
 }
 
 void escreverCifra(){
 	FILE* in = fopen("cifras.txt","rb");
-	out = fopen("cipher.txt","wb+");
+	//out = fopen("cipher.txt","wb+");
 
 	registro = fopen("registro.log","a+");
 	fprintf(registro,"Escrevendo cifra da chave de %d bits:\n",BITS[vez]);
@@ -718,24 +657,28 @@ void escreverCifra(){
 		ch = getc(in);
 		if(i>=contMax-64){
 			//escrever cifra no cipher /* 0 a 63 ; 65 a 128 ; 130 a 193 ;*/ 
-			fprintf(out,"%c",ch);
+			//fprintf(out,"%c",ch);
+			CIFRA[i%64]=ch-48;
 		}
 		i++;
 	}
 	fclose(in);
-	fclose(out);
+	//fclose(out);
 
 	//verificar cifra
 	registro = fopen("registro.log","a+");
-	out = fopen("cipher.txt","rb");
-	ch=getc(out);
-	while(ch!=EOF){
+	//out = fopen("cipher.txt","rb");
+	//ch=getc(out);
+	for(int i=0;i<64;i++){
+		fprintf(registro,"%d",CIFRA[i]);
+	}
+/* 	while(ch!=EOF){
 		fprintf(registro,"%c",ch);
 		ch = getc(out);
-	}
+	} */
 	fprintf(registro,"\n");
 	fclose(registro);
-	fclose(out);
+	//fclose(out);
 
 }
 
@@ -760,11 +703,6 @@ int main()
 
 		for(k=0;k<N;k++){
 			msgCorreta=false;
-			//zerar arquivos
-			out = fopen("result.txt", "wb+");
-			fclose(out);
-			out = fopen("decrypted.txt", "wb+");
-			fclose(out);
 
 			chavebits(k);
 
@@ -773,14 +711,14 @@ int main()
 			verificarMensagem();
 			
 			if(msgCorreta){
-				FILE* in = fopen("key.txt","rb");
+				//FILE* in = fopen("key.txt","rb");
 				out = fopen("chaves.txt","ab+");
 				//escrevendo key no arquivo chaves
 				int cont=0;
 				char ch;
 				while(cont<64){
-					ch = fgetc(in);
-					fprintf(out,"%c",ch);
+					//ch = fgetc(in);
+					fprintf(out,"%d",CHAVE[cont]);
 					cont++;
 				}
 				fprintf(out, "\n");
@@ -789,14 +727,12 @@ int main()
 				fprintf(registro,"Mensagem de %d bits encontrada e escrita no arquivo chaves.txt.\n",BITS[vez]);
 				fclose(registro);
 
-				fclose(in);
+				//fclose(in);
 				fclose(out); 
 				break;
 			}
 			else{
- 					/* registro=fopen("registro.log","a+");
-					fprintf(registro,"Mensagem não encontrada para %d bits.\n", BITS[vez]);
-					fclose(registro);  */
+ 					
 				}
 		}
 		if (!msgCorreta){
