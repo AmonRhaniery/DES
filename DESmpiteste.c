@@ -5,7 +5,8 @@
 #include <time.h>
 #include <stdbool.h>
 #include <sys/time.h>
-#include<mpi.h>
+#include <mpi.h>
+
 
 int IP[] = 
 {
@@ -147,7 +148,7 @@ int SHIFTS[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
 FILE* out;
 FILE* registro;
-int msgCorreta[1];
+int msgCorreta; //0 para falso e 1 para verdadeira
 int LEFT[17][32], RIGHT[17][32];
 int IPtext[64];
 int EXPtext[48];
@@ -161,15 +162,10 @@ int CIPHER[64];
 int ENCRYPTED[64];
 int BITS[] = {16,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56};
 int vez;
-int CHAVE[64];
-int CHAVES56[56];
-int CIFRA[64];
-int DESCRIPTADO[64];
 
 void expansion_function(int pos, int text)
 {
-    int i;
-	for (i = 0; i < 48; i++)
+	for (int i = 0; i < 48; i++)
 		if (E[i] == pos + 1)
 			EXPtext[i] = text;
 }
@@ -186,8 +182,7 @@ int initialPermutation(int pos, int text)
 int F1(int i)
 {
 	int r, c, b[6];
-    int j;
-	for (j = 0; j < 6; j++)
+	for (int j = 0; j < 6; j++)
 		b[j] = X[i][j];
 
 	r = b[0] * 2 + b[5];
@@ -236,13 +231,12 @@ int ToBits(int value)
 int SBox(int XORtext[])
 {
 	int k = 0;
-    int i,j;
-	for (i = 0; i < 8; i++)
-		for (j = 0; j < 6; j++)
+	for (int i = 0; i < 8; i++)
+		for (int j = 0; j < 6; j++)
 			X[i][j] = XORtext[k++];
 
 	int value;
-	for (i = 0; i < 8; i++) 
+	for (int i = 0; i < 8; i++) 
 	{
 		value = F1(i);
 		ToBits(value);
@@ -260,11 +254,10 @@ int PBox(int pos, int text)
 
 void cipher(int Round, int mode)
 {
-    int i;
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		expansion_function(i, RIGHT[Round - 1][i]);
 
-	for (i = 0; i < 48; i++) 
+	for (int i = 0; i < 48; i++) 
 	{
 		if (mode == 0)
 			XORtext[i] = XOR(EXPtext[i], key48bit[Round][i]);
@@ -274,9 +267,9 @@ void cipher(int Round, int mode)
 
 	SBox(XORtext);
 
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		PBox(i, X2[i]);
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		RIGHT[Round][i] = XOR(LEFT[Round - 1][i], R[i]);
 }
 
@@ -292,8 +285,7 @@ void finalPermutation(int pos, int text)
 void convertToBinary(int n)
 {
 	int k, m;
-    int i;
-	for (i = 7; i >= 0; i--) 
+	for (int i = 7; i >= 0; i--) 
 	{
 		m = 1 << i;
 		k = n & m;
@@ -325,25 +317,23 @@ int convertCharToBit(long int n)
 void Encryption(long int plain[])
 {
 	out = fopen("cipher.txt", "ab+");
-    int i;
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		initialPermutation(i, plain[i]);
 
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		LEFT[0][i] = IPtext[i];
-	for (i = 32; i < 64; i++)
+	for (int i = 32; i < 64; i++)
 		RIGHT[0][i - 32] = IPtext[i];
 
-    int k;
-	for (k = 1; k < 17; k++) 
+	for (int k = 1; k < 17; k++) 
 	{
 		cipher(k, 0);
 
-		for (i = 0; i < 32; i++)
+		for (int i = 0; i < 32; i++)
 			LEFT[k][i] = RIGHT[k - 1][i];
 	}
 
-	for (i = 0; i < 64; i++) 
+	for (int i = 0; i < 64; i++) 
 	{
 		if (i < 32)
 			CIPHER[i] = RIGHT[16][i];
@@ -352,32 +342,30 @@ void Encryption(long int plain[])
 		finalPermutation(i, CIPHER[i]);
 	}
 
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		fprintf(out, "%d", ENCRYPTED[i]);
 	fclose(out);
 }
 
 void Decryption(long int plain[])
 {
-	//out = fopen("decrypted.txt", "ab+");
-    int i;
-	for (i = 0; i < 64; i++)
+	out = fopen("decrypted.txt", "ab+");
+	for (int i = 0; i < 64; i++)
 		initialPermutation(i, plain[i]);
 
-	for (i = 0; i < 32; i++)
+	for (int i = 0; i < 32; i++)
 		LEFT[0][i] = IPtext[i];
 
-	for (i = 32; i < 64; i++)
+	for (int i = 32; i < 64; i++)
 		RIGHT[0][i - 32] = IPtext[i];
 
-    int k;
-	for (k = 1; k < 17; k++) {
+	for (int k = 1; k < 17; k++) {
 		cipher(k, 1);
 
-		for (i = 0; i < 32; i++)
+		for (int i = 0; i < 32; i++)
 			LEFT[k][i] = RIGHT[k - 1][i];
 	}
-	for (i = 0; i < 64; i++) 
+	for (int i = 0; i < 64; i++) 
 	{
 		if (i < 32)
 			CIPHER[i] = RIGHT[16][i];
@@ -385,18 +373,16 @@ void Decryption(long int plain[])
 			CIPHER[i] = LEFT[16][i - 32];
 		finalPermutation(i, CIPHER[i]);
 	}
-	for (i = 0; i < 64; i++)
-		DESCRIPTADO[i]=ENCRYPTED[i];
-		//fprintf(out, "%d", ENCRYPTED[i]);
+	for (int i = 0; i < 64; i++)
+		fprintf(out, "%d", ENCRYPTED[i]);
 
-	//fclose(out);
+	fclose(out);
 }
 
 void convertToBits(int ch[])
 {
 	int value = 0;
-    int i;
-	for (i = 7; i >= 0; i--)
+	for (int i = 7; i >= 0; i--)
 		value += (int)pow(2, i) * ch[7 - i];
 	fprintf(out, "%c", value);
 }
@@ -404,8 +390,7 @@ void convertToBits(int ch[])
 int bittochar()
 {
 	out = fopen("result.txt", "ab+");
-    int i;
-	for (i = 0; i < 64; i = i + 8)
+	for (int i = 0; i < 64; i = i + 8)
 		convertToBits(&ENCRYPTED[i]);
 	fclose(out);
 }
@@ -434,66 +419,68 @@ void key64to48(unsigned int key[])
 	int CD[17][56];
 	int C[17][28], D[17][28];
 
-    int i;
-	for (i = 0; i < 64; i++)
+	for (int i = 0; i < 64; i++)
 		key64to56(i, key[i]);
 
-	for (i = 0; i < 56; i++)
+	for (int i = 0; i < 56; i++)
 		if (i < 28)
 			C[0][i] = key56bit[i];
 		else
 			D[0][i - 28] = key56bit[i];
 
-    int x;
-	for (x = 1; x < 17; x++) 
+	for (int x = 1; x < 17; x++) 
 	{
 		int shift = SHIFTS[x - 1];
 
-		for (i = 0; i < shift; i++)
+		for (int i = 0; i < shift; i++)
 			backup[x - 1][i] = C[x - 1][i];
-		for (i = 0; i < (28 - shift); i++)
+		for (int i = 0; i < (28 - shift); i++)
 			C[x][i] = C[x - 1][i + shift];
 		k = 0;
-		for (i = 28 - shift; i < 28; i++)
+		for (int i = 28 - shift; i < 28; i++)
 			C[x][i] = backup[x - 1][k++];
 
-		for (i = 0; i < shift; i++)
+		for (int i = 0; i < shift; i++)
 			backup[x - 1][i] = D[x - 1][i];
-		for (i = 0; i < (28 - shift); i++)
+		for (int i = 0; i < (28 - shift); i++)
 			D[x][i] = D[x - 1][i + shift];
 		k = 0;
-		for (i = 28 - shift; i < 28; i++)
+		for (int i = 28 - shift; i < 28; i++)
 			D[x][i] = backup[x - 1][k++];
 	}
 
-    int j;
-	for (j = 0; j < 17; j++) 
+	for (int j = 0; j < 17; j++) 
 	{
-		for (i = 0; i < 28; i++)
+		for (int i = 0; i < 28; i++)
 			CD[j][i] = C[j][i];
-		for (i = 28; i < 56; i++)
+		for (int i = 28; i < 56; i++)
 			CD[j][i] = D[j][i - 28];
 	}
 
-	for (j = 1; j < 17; j++)
-		for (i = 0; i < 56; i++)
+	for (int j = 1; j < 17; j++)
+		for (int i = 0; i < 56; i++)
 			key56to48(j, i, CD[j][i]);
 }
 
 void decrypt(long int n)
 {
+	FILE* in = fopen("cipher.txt", "rb");
 	long int plain[n * 64];
 	int i = -1;
+	char ch;
 
-    int k;
-	for(k=0;k<64;k++){
-		plain[k]=CIFRA[k];
+	while (!feof(in)) 
+	{
+		ch = getc(in);
+		plain[++i] = ch - 48;
 	}
-
-	for (i = 0; i < n; i++) 
+	
+	for (int i = 0; i < n; i++) 
 	{
 		Decryption(plain + i * 64);
+		bittochar();
 	}
+	fclose(in);
 }
 
 void encrypt(long int n)
@@ -510,7 +497,7 @@ void encrypt(long int n)
 		plain[++i] = ch - 48;
 	}
 
-	for (i = 0; i < n; i++)
+	for (int i = 0; i < n; i++)
 		Encryption(plain + 64 * i);
 
 	fclose(in);
@@ -518,16 +505,20 @@ void encrypt(long int n)
 
 void create16Keys()
 {
-
+	FILE* pt = fopen("key.txt", "rb");
 	unsigned int key[64];
 	int i = 0, ch;
 
-	for (i=0;i<64;i++){
-		key[i]=CHAVE[i];
+	ch = getc(pt);
+	while (ch!=EOF) 
+	{
+		
+		key[i++] = ch - 48;
+		ch = getc(pt);
 	}
 
 	key64to48(key);
-
+	fclose(pt);
 }
 
 long int findFileSize()
@@ -544,15 +535,49 @@ long int findFileSize()
 }
 
 void keyTo64Bits(){
+	FILE* aux = fopen("key.txt", "rb");
+	int CHAVE[64];
+	int chAux[56];
 	int i=0;
 	int j=0;
 	char ch;
+	//inicilizar chave de 56 bits com zeros
+	for(int k=0;k<56;k++){
+		chAux[k]=0;
+	}
+	//encontrar quantos bits estão no arquivo para colocá-los no final
+	int size;
+	if (fseek(aux, 0L, SEEK_END))
+		perror("fseek() failed");
+	else // size will contain no. of chars in input file.
+		size = ftell(aux);
+	fclose(aux);
+	
+	//registro = fopen("registro.log","a+");
+	//fprintf(registro,"chave tem %d bits. \n", size-1);
+
+	//colocar os bits no fim do vetor chave
+	aux = fopen("key.txt", "rb");
+	i=56-size;
+	while (!feof(aux) && i<56) {
+		ch = getc(aux);
+		chAux[i] = ch - 48;
+		i++;
+	}
+	fclose(aux);
+	
+	//verificar vetor chAux
+/* 	fprintf(registro,"CHAVE 56 BITS: ");
+	for(int k=0;k<56;k++){
+		fprintf(registro,"%d",chAux[k]);
+	}
+	fprintf(registro,"\n");
+	fclose(registro); */
 
 //preencher com bit paridade a cada oitavo bit
 	int qtdUns=0;
 	int count=0;
-    int k;
-	for(k=0;k<64;k++){
+	for(int k=0;k<64;k++){
 		if (count==7){
 			if(qtdUns%2==0){
 				CHAVE[k]=1;
@@ -562,17 +587,24 @@ void keyTo64Bits(){
 			qtdUns=0;
 			count=0;		
 		} else {
-			CHAVE[k]=CHAVES56[j];
-			if(CHAVES56[j]==1){
+			CHAVE[k]=chAux[j];
+			if(chAux[j]==1){
 				qtdUns+=1;
 			}
 			j++;
 			count++;
 		}
 	}
+
+	//escrever a chave 64bits no arquivo
+	out = fopen("key.txt", "wb+");
+	for(int k=0;k<64;k++){
+		fprintf(out, "%d", CHAVE[k]);
+	}
+	fclose(out);
 	
 	//verificar vetor CHAVE
- /* 	registro = fopen("registro.log","a+");
+/* 	registro = fopen("registro.log","a+");
 	fprintf(registro,"CHAVE 64 BITS: ");
 	for(int k=0;k<64;k++){
 		fprintf(registro,"%d",CHAVE[k]);
@@ -583,29 +615,43 @@ void keyTo64Bits(){
 
 //k valor inteiro long long
 void chavebits(long long int k){
-	long long int c;
+	out = fopen("key.txt", "wb+");
+	//converter inteiro k em binário
+	/* long long int a, m;
+	for (int i = 55; i >= 0; i--) 
+	{
+		m = 1 << i;
+		a = k & m;
+		if (a == 0)
+			fprintf(out, "0");
+		else
+			fprintf(out, "1");
+	}
+	fclose(out); */
+    long long int c;
     long long unsigned int m;
-	int j=0;
 	for (c = 55; c >= 0; c--)
     {
         m = k >> c;
 
         if (m & 1)
-			CHAVES56[j]=1;
+            fprintf(out, "1");
         else
-			CHAVES56[j]=0;
-	j++;
+            fprintf(out, "0");
     }
+	fclose(out);
 
-/* 	registro=fopen("registro.log","a+");
-	fprintf(registro,"Testando chave %lld :\n",k); 
+	//registro=fopen("registro.log","a+");
+	//fprintf(registro,"Testando chave %lld :\n",k);
 	//verificar chave do arquivo key.txt
-
-	for (int k=0;k<56;k++){
-		fprintf(registro,"%d",CHAVES56[k]);
+	out = fopen("key.txt", "rb");
+		while (!feof(out)) {
+			char ch = getc(out);
+			//fprintf(registro,"%c",ch);
 	}
-	fprintf(registro,"\n");
-	fclose(registro); */
+	//fprintf(registro,"\n");
+	//fclose(registro);
+	fclose(out);
 
 	keyTo64Bits(); //chave 64 bits escrita no key.txt
 
@@ -639,28 +685,28 @@ void verificarMensagem(){
 	fprintf(registro,"Verificando mensagem decifrada gerada em bits com o arquivo decrypted... \n");
 	fclose(registro); */
 
-// 	FILE* descriptografado=fopen("decrypted.txt", "rb");
+	FILE* descriptografado=fopen("decrypted.txt", "rb");
 	FILE* bitsOriginal=fopen("bits.txt", "rb");
 	int i=0;
-	while(i<64){
-		//char chDes = getc(descriptografado);
+	while(!feof(out) && i<64){
+		char chDes = getc(descriptografado);
 		char chBits = getc(bitsOriginal);
-		if(DESCRIPTADO[i]==chBits-48){
+		if(chDes==chBits){
 			i++;
 			if(i==64){
-				msgCorreta[0]=1;
+				msgCorreta=true;
 			}
 		}else{
 			break;
 		}
 	}
-	//fclose(descriptografado);
-	fclose(bitsOriginal); 
+	fclose(descriptografado);
+	fclose(bitsOriginal);
 }
 
 void escreverCifra(){
 	FILE* in = fopen("cifras.txt","rb");
-	//out = fopen("cipher.txt","wb+");
+	out = fopen("cipher.txt","wb+");
 
 	registro = fopen("registro.log","a+");
 	fprintf(registro,"Escrevendo cifra da chave de %d bits:\n",BITS[vez]);
@@ -673,42 +719,39 @@ void escreverCifra(){
 		ch = getc(in);
 		if(i>=contMax-64){
 			//escrever cifra no cipher /* 0 a 63 ; 65 a 128 ; 130 a 193 ;*/ 
-			//fprintf(out,"%c",ch);
-			CIFRA[i%64]=ch-48;
+			fprintf(out,"%c",ch);
 		}
 		i++;
 	}
 	fclose(in);
-	//fclose(out);
+	fclose(out);
 
 	//verificar cifra
 	registro = fopen("registro.log","a+");
-	//out = fopen("cipher.txt","rb");
-	//ch=getc(out);
-	for(i=0;i<64;i++){
-		fprintf(registro,"%d",CIFRA[i]);
-	}
-/* 	while(ch!=EOF){
+	out = fopen("cipher.txt","rb");
+	ch=getc(out);
+	while(ch!=EOF){
 		fprintf(registro,"%c",ch);
 		ch = getc(out);
-	} */
+	}
 	fprintf(registro,"\n");
 	fclose(registro);
-	//fclose(out);
+	fclose(out);
 
 }
 
 int main(int argc, char *argv[])
 {
-	//MPI
+    //MPI
     int npes, myrank;
     MPI_Init(&argc, &argv); 
     MPI_Comm_size(MPI_COMM_WORLD, &npes); 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 
-    if(myrank==0){    //zerar os arquivos
+    if(myrank==0){// destroy contents of these files (from previous runs, if any)
         registro = fopen("registro.log", "wb+");
         fclose(registro);
+        //zerar o arquivo de chaves encontradas
         out = fopen("chaves.txt", "wb+");
         fclose(out);
     }
@@ -717,14 +760,20 @@ int main(int argc, char *argv[])
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
 
-  	for(vez=0;vez<1;vez++){ 
+  	for(vez=0;vez<26;vez++){ 
 		long long unsigned int N=pow(2,BITS[vez]); //limite de chave que pode ser usada, de acordo com a quantidade de bits especificada para a cifra em questão
 		long long unsigned int k; //chave da vez
-		escreverCifra(); //escrever qual é a cifra da vez
-        int qtdPorProc=N/npes; //quantidade a ser distribuida a cada processo
-        msgCorreta[0]=0;
+		if(myrank==0)
+            escreverCifra(); //primeiro processo qual é a cifra da vez
+        int qtdPorProc=N/npes;
 		for(k=myrank*qtdPorProc;k<(myrank+1)*qtdPorProc;k++){
-			
+			msgCorreta=0;
+            if(myrank==0) {//zerar arquivos
+                out = fopen("result.txt", "wb+");
+                fclose(out);
+                out = fopen("decrypted.txt", "wb+");
+                fclose(out);
+            }
             MPI_Barrier(MPI_COMM_WORLD); //esperar todos os arquivos necessários para o processo estarem prontos
 
 			chavebits(k);
@@ -732,50 +781,37 @@ int main(int argc, char *argv[])
 			decriptografarDES();
 
 			verificarMensagem();
-
-            MPI_Barrier(MPI_COMM_WORLD);
 			
-			if(msgCorreta[0]==1){
-				//FILE* in = fopen("key.txt","rb");
+			if(msgCorreta){
+				FILE* in = fopen("key.txt","rb");
 				out = fopen("chaves.txt","ab+");
 				//escrevendo key no arquivo chaves
 				int cont=0;
 				char ch;
 				while(cont<64){
-					//ch = fgetc(in);
-					fprintf(out,"%d",CHAVE[cont]);
+					ch = fgetc(in);
+					fprintf(out,"%c",ch);
 					cont++;
 				}
 				fprintf(out, "\n");
 
 				registro=fopen("registro.log","a+");
-				fprintf(registro,"Mensagem de %d bits encontrada pelo processo %d de %d, e escrita no arquivo chaves.txt.\n",BITS[vez],myrank,npes);
+				fprintf(registro,"Mensagem de %d bits encontrada e escrita no arquivo chaves.txt.\n",BITS[vez]);
 				fclose(registro);
-                
-                MPI_Bcast(msgCorreta,1,MPI_INT,myrank,MPI_COMM_WORLD);
-                
-				//fclose(in);
+
+				fclose(in);
 				fclose(out); 
 				break;
 			}
 			else{
-                    int z;
-                    for (z=0;z<npes;z++){
-                        MPI_Bcast(msgCorreta,1,MPI_INT,z,MPI_COMM_WORLD);
-                        if (msgCorreta[0]==1){
-                            registro=fopen("registro.log","a+");
-                            fprintf(registro,"Parando processo %d de %d.\n",myrank,npes);
-                            fclose(registro);
-                            break;
-                        }
-                    }
-                    if (msgCorreta[0]==1)
-                        break;
+ 					/* registro=fopen("registro.log","a+");
+					fprintf(registro,"Mensagem não encontrada para %d bits.\n", BITS[vez]);
+					fclose(registro);  */
 				}
 		}
-		if (msgCorreta[0]==0){
- 					registro=fopen("registro.log","a+");
-					fprintf(registro,"Mensagem não encontrada para %d bits no processo %d.\n", BITS[vez],myrank);
+		if (!msgCorreta){
+ 					 registro=fopen("registro.log","a+");
+					fprintf(registro,"Mensagem não encontrada para %d bits.\n", BITS[vez]);
 					fclose(registro);
 		}
 
@@ -788,8 +824,7 @@ int main(int argc, char *argv[])
 	registro=fopen("registro.log","a+");
     fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.\n", time_taken);
 	fclose(registro);
-
+    
     MPI_Finalize();
-
 	return 0;
 }
