@@ -556,13 +556,13 @@ void keyTo64Bits(){
 	}
 	
 	//verificar vetor CHAVE
- 	registro = fopen("registro.log","a+");
+ /* 	registro = fopen("registro.log","a+");
 	fprintf(registro,"CHAVE 64 BITS: ");
 	for(int k=0;k<64;k++){
 		fprintf(registro,"%d",CHAVE[k]);
 	}
 	fprintf(registro,"\n");
-	fclose(registro);
+	fclose(registro); */
 }
 
 //k valor inteiro long long
@@ -582,14 +582,14 @@ void chavebits(long long int k){
     }
 
 /* 	registro=fopen("registro.log","a+");
-	fprintf(registro,"Testando chave %lld :\n",k); */
+	fprintf(registro,"Testando chave %lld :\n",k); 
 	//verificar chave do arquivo key.txt
 
 	for (int k=0;k<56;k++){
 		fprintf(registro,"%d",CHAVES56[k]);
 	}
 	fprintf(registro,"\n");
-	fclose(registro);
+	fclose(registro); */
 
 	keyTo64Bits(); //chave 64 bits escrita no key.txt
 
