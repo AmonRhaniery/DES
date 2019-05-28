@@ -662,7 +662,7 @@ void verificarMensagem(int k){
 			i++;
 			if(i==64){
 				msgCorreta=1;
-                printf("Cheguei AQUI com a chave %d.\n",k);
+                printf("Encontrada com a chave %d.\n",k);
 			}
 		}else{
 			break;
