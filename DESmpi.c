@@ -5,7 +5,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include <sys/time.h>
-#include<mpi.h>
+#include <mpi.h>
 
 int IP[] = 
 {
@@ -147,7 +147,8 @@ int SHIFTS[] = { 1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1 };
 
 FILE* out;
 FILE* registro;
-int msgCorreta[1];
+int msgCorreta;
+int msgCorretaAux[1];
 int LEFT[17][32], RIGHT[17][32];
 int IPtext[64];
 int EXPtext[48];
@@ -164,7 +165,9 @@ int vez;
 int CHAVE[64];
 int CHAVES56[56];
 int CIFRA[64];
-int DESCRIPTADO[64];
+int DECODIFICADO[64];
+int npes, myrank;
+int MSGBITS[64];
 
 void expansion_function(int pos, int text)
 {
@@ -386,7 +389,7 @@ void Decryption(long int plain[])
 		finalPermutation(i, CIPHER[i]);
 	}
 	for (i = 0; i < 64; i++)
-		DESCRIPTADO[i]=ENCRYPTED[i];
+		DECODIFICADO[i]=ENCRYPTED[i];
 		//fprintf(out, "%d", ENCRYPTED[i]);
 
 	//fclose(out);
@@ -633,29 +636,40 @@ void decriptografarDES(){
 	decrypt(n);
 }
 
-void verificarMensagem(){
+void verificarMensagem(int k){
 	//verificar se chave está correta, o arquivo bits tem que ser igual ao decrypted
 /* 	registro=fopen("registro.log","a+");
 	fprintf(registro,"Verificando mensagem decifrada gerada em bits com o arquivo decrypted... \n");
 	fclose(registro); */
+    
+/*      if(myrank==60){
+        printf("\n CHAVE %d\n",k);
+        int z;
+       for(z=0;z<64;z++){
+            printf("%d",DECODIFICADO[z]);
+        }
+        printf("\n");
+        printf("\n MSG ORIGINAL %d\n",k);
+       for(z=0;z<64;z++){
+            printf("%d",MSGBITS[z]);
+        }
+        printf("\n");
+    } */
 
-// 	FILE* descriptografado=fopen("decrypted.txt", "rb");
-	FILE* bitsOriginal=fopen("bits.txt", "rb");
 	int i=0;
 	while(i<64){
-		//char chDes = getc(descriptografado);
-		char chBits = getc(bitsOriginal);
-		if(DESCRIPTADO[i]==chBits-48){
+		if(DECODIFICADO[i]==MSGBITS[i]){
 			i++;
 			if(i==64){
-				msgCorreta[0]=1;
+				msgCorreta=1;
+                printf("Cheguei AQUI com a chave %d.\n",k);
 			}
 		}else{
 			break;
 		}
 	}
 	//fclose(descriptografado);
-	fclose(bitsOriginal); 
+	
 }
 
 void escreverCifra(){
@@ -669,12 +683,16 @@ void escreverCifra(){
 	int contMax=64*(vez+1)+vez; //se 1a vez=0 cont=64, 2a vez=1 cont 128...
 	int i=0;
 	char ch;
+    int z=0;
 	while (i<contMax){
 		ch = getc(in);
+        
 		if(i>=contMax-64){
 			//escrever cifra no cipher /* 0 a 63 ; 65 a 128 ; 130 a 193 ;*/ 
 			//fprintf(out,"%c",ch);
-			CIFRA[i%64]=ch-48;
+			CIFRA[z]=ch-48;
+            //CIFRA[i%64]=ch-48;
+            z++;
 		}
 		i++;
 	}
@@ -697,11 +715,24 @@ void escreverCifra(){
 	//fclose(out);
 
 }
+void escreverBits() {
+    FILE* arqBits=fopen("bits.txt", "rb");
+	int b=0;
+	while(b<64){
+		//char chDes = getc(descriptografado);
+		char chBits = getc(arqBits);
+        int x=chBits-48;
+        MSGBITS[b]=x;
+        b++;
+	}
+	//fclose(descriptografado);
+	fclose(arqBits);  
+}
 
 int main(int argc, char *argv[])
 {
 	//MPI
-    int npes, myrank;
+
     MPI_Init(&argc, &argv); 
     MPI_Comm_size(MPI_COMM_WORLD, &npes); 
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -717,79 +748,102 @@ int main(int argc, char *argv[])
 	struct timeval start, end;
 	gettimeofday(&start, NULL); // Start timer
 
+    escreverBits();
+    
   	for(vez=0;vez<1;vez++){ 
 		long long unsigned int N=pow(2,BITS[vez]); //limite de chave que pode ser usada, de acordo com a quantidade de bits especificada para a cifra em questão
 		long long unsigned int k; //chave da vez
+        
 		escreverCifra(); //escrever qual é a cifra da vez
-        int qtdPorProc=N/npes; //quantidade a ser distribuida a cada processo
-        msgCorreta[0]=0;
+        MPI_Barrier(MPI_COMM_WORLD); //esperar todos os arquivos necessários para o processo estarem prontos
+
+        int qtdPorProc=N/npes; //quantidade a ser distribuida a cada proces
+        msgCorreta=0;
+        msgCorretaAux[0]=0;
 		for(k=myrank*qtdPorProc;k<(myrank+1)*qtdPorProc;k++){
-			
-            MPI_Barrier(MPI_COMM_WORLD); //esperar todos os arquivos necessários para o processo estarem prontos
 
 			chavebits(k);
 
 			decriptografarDES();
 
-			verificarMensagem();
+			verificarMensagem(k);
 
-            MPI_Barrier(MPI_COMM_WORLD);
-			
-			if(msgCorreta[0]==1){
-				//FILE* in = fopen("key.txt","rb");
+            //escrever chave no arquivo
+			if(msgCorreta==1){
+
 				out = fopen("chaves.txt","ab+");
-				//escrevendo key no arquivo chaves
-				int cont=0;
+				//convertendo de 64bits para 56
+				int cont=0,i=0,z=0;
+                int aux[56];
 				char ch;
-				while(cont<64){
-					//ch = fgetc(in);
-					fprintf(out,"%d",CHAVE[cont]);
-					cont++;
-				}
+                for(i=0;i<64;i++){
+                    if(cont==7){
+                        cont=0;
+                        continue;
+                    }
+                    aux[z]=CHAVE[i];
+                    z++;
+                    cont++;
+                }
+                //convertendo de 56bits para o bit da vez
+                for(i=56-BITS[vez];i<56;i++){
+                    fprintf(out,"%d",aux[i]);
+                }
 				fprintf(out, "\n");
 
 				registro=fopen("registro.log","a+");
 				fprintf(registro,"Mensagem de %d bits encontrada pelo processo %d de %d, e escrita no arquivo chaves.txt.\n",BITS[vez],myrank,npes);
 				fclose(registro);
-                
-                MPI_Bcast(msgCorreta,1,MPI_INT,myrank,MPI_COMM_WORLD);
-                
-				//fclose(in);
+            
 				fclose(out); 
-				break;
-			}
-			else{
-                    int z;
-                    for (z=0;z<npes;z++){
-                        MPI_Bcast(msgCorreta,1,MPI_INT,z,MPI_COMM_WORLD);
-                        if (msgCorreta[0]==1){
-                            registro=fopen("registro.log","a+");
-                            fprintf(registro,"Parando processo %d de %d.\n",myrank,npes);
-                            fclose(registro);
-                            break;
-                        }
-                    }
-                    if (msgCorreta[0]==1)
-                        break;
-				}
-		}
-		if (msgCorreta[0]==0){
+				//break;
+			} 
+		
+            //Trocar dados de msgCorreta para saber se pode parar
+            int z;
+            for(z=0;z<npes;z++){
+                MPI_Bcast(msgCorretaAux,1,MPI_INT,z,MPI_COMM_WORLD);
+                if (msgCorretaAux[0]==1){ 
+                    msgCorreta=1;
+/*                     registro=fopen("registro.log","a+");
+                    fprintf(registro,"Mensagem correta recebida no processo %d.\n",myrank);
+                    fclose(registro); */
+                }
+                if(msgCorreta==1)
+                    msgCorretaAux[0]=1;
+            }
+            
+
+            if(msgCorreta==1)
+                break;
+
+          
+        }        
+        MPI_Barrier(MPI_COMM_WORLD); 
+		if (msgCorreta==0){
  					registro=fopen("registro.log","a+");
 					fprintf(registro,"Mensagem não encontrada para %d bits no processo %d.\n", BITS[vez],myrank);
 					fclose(registro);
 		}
+        else {
+  /*           registro=fopen("registro.log","a+");
+            fprintf(registro,"Mensagem correta recebida no processo %d.\n",myrank);
+            fclose(registro); */
+        }
 
 	}
+    
+    MPI_Barrier(MPI_COMM_WORLD); //esperar todos os processos terminarem
 
 	gettimeofday(&end, NULL); // End timer
 	double time_taken = (end.tv_sec - start.tv_sec) * 1e6;
 	time_taken = (time_taken + (end.tv_usec -  
                               start.tv_usec)) * 1e-6;
 	registro=fopen("registro.log","a+");
-    fprintf(registro,"Tempo que o programa levou foi de: %.6lf segundos.\n", time_taken);
+    fprintf(registro,"Tempo que o programa %d levou foi de: %.6lf segundos.\n", myrank,time_taken);
 	fclose(registro);
 
-    MPI_Finalize();
+    MPI_Finalize(); //testar mudar isso de lugar, pra ser um tempo só para todos os processos
 
 	return 0;
 }
